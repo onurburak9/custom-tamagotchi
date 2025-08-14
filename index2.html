@@ -74,6 +74,16 @@
             font-size: 18px;
         }
 
+        .stat-icon.heart-icon {
+            background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 80"%3E%3Cg fill="%23FF1493"%3E%3Crect height="10" width="10" x="53" y="6"/%3E%3Crect height="7" width="8" x="60" y="6"/%3E%3Crect height="7" width="6" x="68" y="6"/%3E%3Crect height="8" width="8" x="45" y="13"/%3E%3Crect height="8" width="7" x="53" y="13"/%3E%3Crect height="8" width="6" x="68" y="13"/%3E%3Crect height="8" width="9" x="74" y="13"/%3E%3Crect height="8" width="7" x="83" y="13"/%3E%3Crect height="8" width="8" x="90" y="13"/%3E%3Crect height="8" width="7" x="98" y="13"/%3E%3Crect height="8" width="8" x="105" y="13"/%3E%3Crect height="7" width="8" x="45" y="21"/%3E%3Crect height="7" width="8" x="60" y="21"/%3E%3Crect height="7" width="6" x="68" y="21"/%3E%3Crect height="7" width="9" x="74" y="21"/%3E%3Crect height="7" width="7" x="83" y="21"/%3E%3Crect height="7" width="8" x="90" y="21"/%3E%3Crect height="7" width="7" x="98" y="21"/%3E%3Crect height="7" width="8" x="105" y="21"/%3E%3Crect height="9" width="8" x="45" y="28"/%3E%3Crect height="9" width="7" x="53" y="28"/%3E%3Crect height="9" width="8" x="60" y="28"/%3E%3Crect height="9" width="6" x="68" y="28"/%3E%3Crect height="9" width="9" x="74" y="28"/%3E%3Crect height="9" width="7" x="83" y="28"/%3E%3Crect height="9" width="8" x="90" y="28"/%3E%3Crect height="9" width="7" x="98" y="28"/%3E%3Crect height="9" width="8" x="105" y="28"/%3E%3Crect height="6" width="7" x="53" y="37"/%3E%3Crect height="6" width="8" x="60" y="37"/%3E%3Crect height="6" width="6" x="68" y="37"/%3E%3Crect height="6" width="9" x="74" y="37"/%3E%3Crect height="6" width="7" x="83" y="37"/%3E%3Crect height="6" width="8" x="90" y="37"/%3E%3Crect height="6" width="7" x="98" y="37"/%3E%3Crect height="8" width="8" x="60" y="43"/%3E%3Crect height="8" width="6" x="68" y="43"/%3E%3Crect height="8" width="9" x="74" y="43"/%3E%3Crect height="8" width="7" x="83" y="43"/%3E%3Crect height="7" width="6" x="68" y="51"/%3E%3Crect height="7" width="9" x="74" y="51"/%3E%3Crect height="8" width="9" x="74" y="58"/%3E%3Crect height="7" width="7" x="83" y="51"/%3E%3Crect height="8" width="8" x="90" y="43"/%3E%3Crect height="7" width="7" x="83" y="6"/%3E%3Crect height="7" width="8" x="90" y="6"/%3E%3Crect height="7" width="7" x="98" y="6"/%3E%3C/g%3E%3C/svg%3E');
+            background-size: 200%;
+            background-repeat: no-repeat;
+            background-position: center;
+            width: 18px;
+            height: 18px;
+            display: inline-block;
+        }
+
         .stat-bar {
             flex: 1;
             height: 16px;
@@ -102,6 +112,12 @@
             justify-content: center;
             position: relative;
             background: linear-gradient(180deg, #FFF5F9 0%, #FFFFFF 100%);
+            transition: all 0.3s ease;
+        }
+
+        .pet-area.on-floor {
+            align-items: flex-end;
+            padding-bottom: 80px;
         }
 
         .sprite-container {
@@ -145,8 +161,8 @@
         /* Floating action button */
         .fab-container {
             position: absolute;
-            bottom: 30px;
-            right: 30px;
+            bottom: 20px;
+            right: 20px;
             z-index: 100;
         }
 
@@ -309,6 +325,239 @@
             padding: 0;
         }
 
+        /* Background Settings Modal */
+        .bg-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .bg-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .bg-modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+
+        .bg-modal.show .bg-modal-content {
+            transform: scale(1);
+        }
+
+        .bg-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .bg-modal-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .bg-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+
+        .bg-close:hover {
+            background: #f0f0f0;
+        }
+
+        .bg-section {
+            margin-bottom: 25px;
+        }
+
+        .bg-section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .bg-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .bg-option {
+            border: 3px solid transparent;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .bg-option:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .bg-option.selected {
+            border-color: #4CAF50;
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .bg-preview {
+            width: 100%;
+            height: 80px;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+        }
+
+        .bg-elements {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .bg-element {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: background 0.2s;
+        }
+
+        .bg-element:hover {
+            background: #e9ecef;
+        }
+
+        .bg-element-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bg-element-icon {
+            font-size: 20px;
+        }
+
+        .bg-element-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .bg-toggle {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            background: #ccc;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .bg-toggle.active {
+            background: #4CAF50;
+        }
+
+        .bg-toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        .bg-toggle.active::after {
+            transform: translateX(26px);
+        }
+
+        /* Background Settings Button */
+        .bg-settings-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: none;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .bg-settings-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .bg-settings-btn:active {
+            transform: scale(0.95);
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.5; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.2); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes sway {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+        }
+
+        @keyframes flutter {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            25% { transform: translateX(5px) translateY(-3px); }
+            75% { transform: translateX(-3px) translateY(3px); }
+        }
+
         /* Notification */
         .notification {
             position: fixed;
@@ -356,15 +605,8 @@
         }
 
         /* Fullscreen mode adjustments */
-        .fullscreen-mode .status-bar,
-        .fullscreen-mode .info-panel,
-        .fullscreen-mode .debug-panel {
+        .fullscreen-mode .status-bar {
             transform: translateY(-200px);
-        }
-
-        .fullscreen-mode .fab-container {
-            bottom: 20px;
-            right: 20px;
         }
 
         .fullscreen-mode .toggle-ui {
@@ -375,6 +617,7 @@
 <body>
     <div class="game-container">
         <button class="toggle-ui" id="toggleUI">👁️</button>
+        <button class="bg-settings-btn" id="bgSettingsBtn">🎨</button>
 
         <div class="status-bar" id="statusBar">
             <div class="stat-row">
@@ -397,7 +640,7 @@
                     </div>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-icon">💖</span>
+                    <span class="stat-icon heart-icon"></span>
                     <div class="stat-bar">
                         <div class="stat-fill happiness-fill" id="happinessBar"></div>
                     </div>
@@ -405,7 +648,7 @@
             </div>
         </div>
 
-        <div class="pet-area">
+        <div class="pet-area" id="petArea">
             <div class="sprite-container">
                 <div class="sprite" id="petSprite"></div>
                 <div class="thought-bubble" id="thoughtBubble"></div>
@@ -441,6 +684,55 @@
 
     <div class="notification" id="notification"></div>
 
+    <!-- Background Settings Modal -->
+    <div class="bg-modal" id="bgModal">
+        <div class="bg-modal-content">
+            <div class="bg-modal-header">
+                <h2 class="bg-modal-title">Background Settings</h2>
+                <button class="bg-close" id="bgCloseBtn">×</button>
+            </div>
+
+            <div class="bg-section">
+                <h3 class="bg-section-title">Choose Background</h3>
+                <div class="bg-options">
+                    <div class="bg-option selected" data-bg="default">
+                        <div class="bg-preview" style="background: linear-gradient(180deg, #FFF5F9 0%, #FFFFFF 100%);">
+                            Default
+                        </div>
+                    </div>
+                    <div class="bg-option" data-bg="bg-1">
+                        <div class="bg-preview" style="background-image: url('bg-1.png');">
+                            Theme 1
+                        </div>
+                    </div>
+                    <div class="bg-option" data-bg="bg-2">
+                        <div class="bg-preview" style="background-image: url('bg-2.png');">
+                            Theme 2
+                        </div>
+                    </div>
+                    <div class="bg-option" data-bg="bg-3">
+                        <div class="bg-preview" style="background-image: url('bg-3.png');">
+                            Theme 3
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-section">
+                <h3 class="bg-section-title">Background Elements</h3>
+                <div class="bg-elements">
+                    <div class="bg-element">
+                        <div class="bg-element-info">
+                            <span class="bg-element-icon">✨</span>
+                            <span class="bg-element-name">Stars</span>
+                        </div>
+                        <div class="bg-toggle active" data-element="bgStars"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         class StachieSpritePet {
             constructor() {
@@ -468,11 +760,24 @@
 
                 this.animationInterval = null;
 
+                // Background settings
+                this.backgroundSettings = {
+                    currentBackground: 'default',
+                    elements: {
+                        bgStars: true,
+                        bgClouds: true,
+                        bgFlowers: true,
+                        bgTrees: true,
+                        bgButterflies: true
+                    }
+                };
+
                 // Sprite animations mapping (arrays of variations for each action)
                 this.animations = {
                     idle: [
                         { row: 0, frames: 6, speed: 500 },
-                        { row: 1, frames: 3, speed: 600 } // sitting variation
+                        { row: 1, frames: 3, speed: 600 }, // sitting variation
+                        { row: 12, frames: 8, speed: 400 } // sitting variation
                     ],
                     sleeping: [
                         { row: 3, frames: 4, speed: 1000 },
@@ -496,7 +801,8 @@
                     ],
                     happy: [
                         { row: 11, frames: 4, speed: 200 },
-                        { row: 16, frames: 8, speed: 180 } // alternative happy animation
+                        { row: 16, frames: 8, speed: 180 }, // alternative happy animation
+                        { row: 4, frames: 10, speed: 250 } // alternative happy animation
                     ],
                     crying: [
                         { row: 10, frames: 4, speed: 300 },
@@ -515,6 +821,7 @@
                 this.startGameLoop();
                 this.updateDisplay();
                 this.setAnimation('idle');
+                this.loadBackgroundSettings();
             }
 
             setupEventListeners() {
@@ -553,6 +860,36 @@
                 // Debug panel toggle
                 document.getElementById('debugHeader').addEventListener('click', () => {
                     this.toggleDebugPanel();
+                });
+
+                // Background settings
+                document.getElementById('bgSettingsBtn').addEventListener('click', () => {
+                    this.openBackgroundModal();
+                });
+
+                document.getElementById('bgCloseBtn').addEventListener('click', () => {
+                    this.closeBackgroundModal();
+                });
+
+                // Close modal when clicking outside
+                document.getElementById('bgModal').addEventListener('click', (e) => {
+                    if (e.target.id === 'bgModal') {
+                        this.closeBackgroundModal();
+                    }
+                });
+
+                // Background option selection
+                document.querySelectorAll('.bg-option').forEach(option => {
+                    option.addEventListener('click', () => {
+                        this.selectBackground(option.dataset.bg);
+                    });
+                });
+
+                // Background element toggles
+                document.querySelectorAll('.bg-toggle').forEach(toggle => {
+                    toggle.addEventListener('click', () => {
+                        this.toggleBackgroundElement(toggle.dataset.element);
+                    });
                 });
             }
 
@@ -754,7 +1091,7 @@
                 this.showNotification("Purr purr! 😻");
 
                 // Animation will handle cleanup when done
-                this.setAnimation('happy', 1, () => {
+                this.setAnimation('happy', 3, () => {
                     this.hideThought();
                 });
 
@@ -834,11 +1171,11 @@
                 // Change idle animation based on mood
                 if (!this.state.isEating && !this.state.isPlaying && !this.state.isSleeping) {
                     if (avgStats > 70) {
-                        this.setAnimation('happy');
+                        this.setAnimation('happy', 0);
                     } else if (avgStats > 40) {
-                        this.setAnimation('sitting');
+                        this.setAnimation('sitting', 0);
                     } else {
-                        this.setAnimation('idle');
+                        this.setAnimation('idle', 0);
                     }
                 }
             }
@@ -870,12 +1207,99 @@
                 `;
             }
 
-            toggleDebugPanel() {
+                        toggleDebugPanel() {
                 const debugPanel = document.getElementById('debugPanel');
                 const debugToggle = document.getElementById('debugToggle');
 
                 debugPanel.classList.toggle('collapsed');
                 debugToggle.textContent = debugPanel.classList.contains('collapsed') ? '+' : '−';
+            }
+
+            // Background Settings Methods
+            openBackgroundModal() {
+                document.getElementById('bgModal').classList.add('show');
+                this.updateBackgroundModal();
+            }
+
+            closeBackgroundModal() {
+                document.getElementById('bgModal').classList.remove('show');
+            }
+
+            selectBackground(backgroundId) {
+                this.backgroundSettings.currentBackground = backgroundId;
+                this.applyBackground();
+                this.updateBackgroundModal();
+                this.saveBackgroundSettings();
+            }
+
+            toggleBackgroundElement(elementId) {
+                this.backgroundSettings.elements[elementId] = !this.backgroundSettings.elements[elementId];
+                this.applyBackgroundElements();
+                this.updateBackgroundModal();
+                this.saveBackgroundSettings();
+            }
+
+                        applyBackground() {
+                const petArea = document.getElementById('petArea');
+
+                if (this.backgroundSettings.currentBackground === 'default') {
+                    petArea.style.background = 'linear-gradient(180deg, #FFF5F9 0%, #FFFFFF 100%)';
+                    petArea.style.backgroundImage = 'none';
+                    petArea.classList.remove('on-floor');
+                } else {
+                    petArea.style.background = 'none';
+                    petArea.style.backgroundImage = `url('${this.backgroundSettings.currentBackground}.png')`;
+                    petArea.style.backgroundSize = 'cover';
+                    petArea.style.backgroundPosition = 'center';
+                    petArea.style.backgroundRepeat = 'no-repeat';
+                    petArea.classList.add('on-floor');
+                }
+            }
+
+            applyBackgroundElements() {
+                Object.keys(this.backgroundSettings.elements).forEach(elementId => {
+                    const element = document.getElementById(elementId);
+                    if (element) {
+                        if (this.backgroundSettings.elements[elementId]) {
+                            element.classList.remove('hidden');
+                        } else {
+                            element.classList.add('hidden');
+                        }
+                    }
+                });
+            }
+
+            updateBackgroundModal() {
+                // Update selected background option
+                document.querySelectorAll('.bg-option').forEach(option => {
+                    option.classList.remove('selected');
+                    if (option.dataset.bg === this.backgroundSettings.currentBackground) {
+                        option.classList.add('selected');
+                    }
+                });
+
+                // Update element toggles
+                document.querySelectorAll('.bg-toggle').forEach(toggle => {
+                    const elementId = toggle.dataset.element;
+                    if (this.backgroundSettings.elements[elementId]) {
+                        toggle.classList.add('active');
+                    } else {
+                        toggle.classList.remove('active');
+                    }
+                });
+            }
+
+            saveBackgroundSettings() {
+                localStorage.setItem('stachie_background_settings', JSON.stringify(this.backgroundSettings));
+            }
+
+            loadBackgroundSettings() {
+                const saved = localStorage.getItem('stachie_background_settings');
+                if (saved) {
+                    this.backgroundSettings = { ...this.backgroundSettings, ...JSON.parse(saved) };
+                }
+                this.applyBackground();
+                this.applyBackgroundElements();
             }
 
             showThought(emoji) {
