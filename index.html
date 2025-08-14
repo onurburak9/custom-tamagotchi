@@ -7,87 +7,1358 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#FFE5F1">
     <title>Stachie's World</title>
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #FFE5F1 0%, #FFF0F5 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 400px;
+            height: 100vh;
+            max-height: 844px;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Status bars with modern glassmorphism effect */
+        .status-bar {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            transition: transform 0.3s ease;
+        }
+
+        .status-bar.hidden {
+            transform: translateY(-120px);
+        }
+
+        .stat-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-icon {
+            font-size: 18px;
+        }
+
+        .stat-icon.heart-icon {
+            background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 80"%3E%3Cg fill="%23FF1493"%3E%3Crect height="10" width="10" x="53" y="6"/%3E%3Crect height="7" width="8" x="60" y="6"/%3E%3Crect height="7" width="6" x="68" y="6"/%3E%3Crect height="8" width="8" x="45" y="13"/%3E%3Crect height="8" width="7" x="53" y="13"/%3E%3Crect height="8" width="6" x="68" y="13"/%3E%3Crect height="8" width="9" x="74" y="13"/%3E%3Crect height="8" width="7" x="83" y="13"/%3E%3Crect height="8" width="8" x="90" y="13"/%3E%3Crect height="8" width="7" x="98" y="13"/%3E%3Crect height="8" width="8" x="105" y="13"/%3E%3Crect height="7" width="8" x="45" y="21"/%3E%3Crect height="7" width="8" x="60" y="21"/%3E%3Crect height="7" width="6" x="68" y="21"/%3E%3Crect height="7" width="9" x="74" y="21"/%3E%3Crect height="7" width="7" x="83" y="21"/%3E%3Crect height="7" width="8" x="90" y="21"/%3E%3Crect height="7" width="7" x="98" y="21"/%3E%3Crect height="7" width="8" x="105" y="21"/%3E%3Crect height="9" width="8" x="45" y="28"/%3E%3Crect height="9" width="7" x="53" y="28"/%3E%3Crect height="9" width="8" x="60" y="28"/%3E%3Crect height="9" width="6" x="68" y="28"/%3E%3Crect height="9" width="9" x="74" y="28"/%3E%3Crect height="9" width="7" x="83" y="28"/%3E%3Crect height="9" width="8" x="90" y="28"/%3E%3Crect height="9" width="7" x="98" y="28"/%3E%3Crect height="9" width="8" x="105" y="28"/%3E%3Crect height="6" width="7" x="53" y="37"/%3E%3Crect height="6" width="8" x="60" y="37"/%3E%3Crect height="6" width="6" x="68" y="37"/%3E%3Crect height="6" width="9" x="74" y="37"/%3E%3Crect height="6" width="7" x="83" y="37"/%3E%3Crect height="6" width="8" x="90" y="37"/%3E%3Crect height="6" width="7" x="98" y="37"/%3E%3Crect height="8" width="8" x="60" y="43"/%3E%3Crect height="8" width="6" x="68" y="43"/%3E%3Crect height="8" width="9" x="74" y="43"/%3E%3Crect height="8" width="7" x="83" y="43"/%3E%3Crect height="7" width="6" x="68" y="51"/%3E%3Crect height="7" width="9" x="74" y="51"/%3E%3Crect height="8" width="9" x="74" y="58"/%3E%3Crect height="7" width="7" x="83" y="51"/%3E%3Crect height="8" width="8" x="90" y="43"/%3E%3Crect height="7" width="7" x="83" y="6"/%3E%3Crect height="7" width="8" x="90" y="6"/%3E%3Crect height="7" width="7" x="98" y="6"/%3E%3C/g%3E%3C/svg%3E');
+            background-size: 200%;
+            background-repeat: no-repeat;
+            background-position: center;
+            width: 18px;
+            height: 18px;
+            display: inline-block;
+        }
+
+        .stat-bar {
+            flex: 1;
+            height: 16px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .stat-fill {
+            height: 100%;
+            border-radius: 8px;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+
+        .hunger-fill { background: linear-gradient(90deg, #FFB347, #FF6B6B); }
+        .hygiene-fill { background: linear-gradient(90deg, #87CEEB, #4A90E2); }
+        .energy-fill { background: linear-gradient(90deg, #FFD700, #FFA500); }
+        .happiness-fill { background: linear-gradient(90deg, #FF69B4, #FF1493); }
+
+        /* Main pet area */
+        .pet-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: linear-gradient(180deg, #FFF5F9 0%, #FFFFFF 100%);
+            transition: all 0.3s ease;
+        }
+
+        .pet-area.on-floor {
+            align-items: flex-end;
+            padding-bottom: 80px;
+        }
+
+        .sprite-container {
+            position: relative;
+            width: 256px;
+            height: 256px;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        .sprite {
+            width: 64px;
+            height: 64px;
+            background-image: url('stachie-sprites.png');
+            background-size: auto;
+            background-repeat: no-repeat;
+            image-rendering: pixelated;
+            transform: scale(4);
+            transform-origin: top left;
+        }
+
+        .thought-bubble {
+            position: absolute;
+            top: -40px;
+            right: -20px;
+            background: white;
+            padding: 8px 12px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            font-size: 20px;
+            display: none;
+            animation: float 2s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* Floating action button */
+        .fab-container {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+
+        .fab {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FF69B4 0%, #FF1493 100%);
+            border: none;
+            box-shadow: 0 4px 20px rgba(255, 20, 147, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .fab:active {
+            transform: scale(0.95);
+        }
+
+        .fab.active {
+            transform: rotate(45deg);
+        }
+
+        /* Action menu */
+        .action-menu {
+            position: absolute;
+            bottom: 100px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s ease;
+            transform-origin: bottom right;
+        }
+
+        .action-menu.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .action-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid #FFB6C1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            animation: slideIn 0.3s ease backwards;
+        }
+
+        .action-btn:nth-child(1) { animation-delay: 0.05s; }
+        .action-btn:nth-child(2) { animation-delay: 0.1s; }
+        .action-btn:nth-child(3) { animation-delay: 0.15s; }
+        .action-btn:nth-child(4) { animation-delay: 0.2s; }
+        .action-btn:nth-child(5) { animation-delay: 0.25s; }
+        .action-btn:nth-child(6) { animation-delay: 0.3s; }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .action-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Info panel */
+        .info-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 10px 15px;
+            border-radius: 15px;
+            font-size: 14px;
+            color: #666;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            transition: transform 0.3s ease;
+        }
+
+        .info-panel.hidden {
+            transform: translateY(100px);
+        }
+
+        /* Debug panel */
+        .debug-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            font-size: 12px;
+            color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+            font-family: monospace;
+            max-width: 250px;
+            transition: all 0.3s ease;
+        }
+
+        .debug-panel.collapsed {
+            max-height: 40px;
+            bottom: 60px;
+            overflow: hidden;
+        }
+
+        .debug-panel.hidden {
+            transform: translateY(100px);
+        }
+
+        .debug-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .debug-content {
+            padding: 10px 15px;
+            transition: opacity 0.3s ease;
+        }
+
+        .debug-panel.collapsed .debug-content {
+            opacity: 0;
+        }
+
+        .debug-toggle {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        /* Background Settings Modal */
+        .bg-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .bg-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .bg-modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+
+        .bg-modal.show .bg-modal-content {
+            transform: scale(1);
+        }
+
+        .bg-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .bg-modal-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .bg-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+
+        .bg-close:hover {
+            background: #f0f0f0;
+        }
+
+        .bg-section {
+            margin-bottom: 25px;
+        }
+
+        .bg-section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .bg-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .bg-option {
+            border: 3px solid transparent;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .bg-option:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .bg-option.selected {
+            border-color: #4CAF50;
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .bg-preview {
+            width: 100%;
+            height: 80px;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+        }
+
+        .bg-elements {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .bg-element {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: background 0.2s;
+        }
+
+        .bg-element:hover {
+            background: #e9ecef;
+        }
+
+        .bg-element-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bg-element-icon {
+            font-size: 20px;
+        }
+
+        .bg-element-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .bg-toggle {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            background: #ccc;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .bg-toggle.active {
+            background: #4CAF50;
+        }
+
+        .bg-toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        .bg-toggle.active::after {
+            transform: translateX(26px);
+        }
+
+        /* Background Settings Button */
+        .bg-settings-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: none;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .bg-settings-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .bg-settings-btn:active {
+            transform: scale(0.95);
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.5; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.2); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes sway {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+        }
+
+        @keyframes flutter {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            25% { transform: translateX(5px) translateY(-3px); }
+            75% { transform: translateX(-3px) translateY(3px); }
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 180px;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            background: white;
+            padding: 15px 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(-50%) scale(1);
+        }
+
+        /* Toggle UI button */
+        .toggle-ui {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: none;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-ui:active {
+            transform: scale(0.95);
+        }
+
+        /* Fullscreen mode adjustments */
+        .fullscreen-mode .status-bar {
+            transform: translateY(-200px);
+        }
+
+        .fullscreen-mode .toggle-ui {
+            background: rgba(255, 255, 255, 0.5);
+        }
+    </style>
 </head>
 <body>
     <div class="game-container">
-        <div class="status-bar">
-            <div class="stat-item">
-                <span class="stat-icon">🍽️</span>
-                <div class="stat-bar">
-                    <div class="stat-fill hunger-fill" id="hungerBar"></div>
+        <button class="toggle-ui" id="toggleUI">👁️</button>
+        <button class="bg-settings-btn" id="bgSettingsBtn">🎨</button>
+
+        <div class="status-bar" id="statusBar">
+            <div class="stat-row">
+                <div class="stat-item">
+                    <span class="stat-icon">🍖</span>
+                    <div class="stat-bar">
+                        <div class="stat-fill hunger-fill" id="hungerBar"></div>
+                    </div>
                 </div>
-            </div>
-            <div class="stat-item">
-                <span class="stat-icon">🧼</span>
-                <div class="stat-bar">
-                    <div class="stat-fill hygiene-fill" id="hygieneBar"></div>
+                <div class="stat-item">
+                    <span class="stat-icon">🧼</span>
+                    <div class="stat-bar">
+                        <div class="stat-fill hygiene-fill" id="hygieneBar"></div>
+                    </div>
                 </div>
-            </div>
-            <div class="stat-item">
-                <span class="stat-icon">😴</span>
-                <div class="stat-bar">
-                    <div class="stat-fill energy-fill" id="energyBar"></div>
+                <div class="stat-item">
+                    <span class="stat-icon">⚡</span>
+                    <div class="stat-bar">
+                        <div class="stat-fill energy-fill" id="energyBar"></div>
+                    </div>
                 </div>
-            </div>
-            <div class="stat-item">
-                <span class="stat-icon">❤️</span>
-                <div class="stat-bar">
-                    <div class="stat-fill health-fill" id="healthBar"></div>
+                <div class="stat-item">
+                    <span class="stat-icon heart-icon"></span>
+                    <div class="stat-bar">
+                        <div class="stat-fill happiness-fill" id="happinessBar"></div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="pet-area">
-            <div class="pet-container">
-                <canvas id="petCanvas" width="300" height="300"></canvas>
+        <div class="pet-area" id="petArea">
+            <div class="sprite-container">
+                <div class="sprite" id="petSprite"></div>
                 <div class="thought-bubble" id="thoughtBubble"></div>
             </div>
-            <div class="environment">
-                <div class="litter-box" id="litterBox"></div>
-                <div class="food-bowl" id="foodBowl"></div>
-                <div class="waste-indicator" id="wasteIndicator"></div>
+        </div>
+
+        <div class="info-panel" id="infoPanel">
+            <div>Stachie • <span id="moodDisplay">Content</span></div>
+        </div>
+
+        <div class="debug-panel" id="debugPanel">
+            <div class="debug-header" id="debugHeader">
+                <strong>Debug State</strong>
+                <button class="debug-toggle" id="debugToggle">−</button>
+            </div>
+            <div class="debug-content">
+                <div id="debugInfo">Loading...</div>
             </div>
         </div>
 
-        <div class="action-buttons">
-            <button class="action-btn" id="feedBtn" data-action="feed">
-                <span class="btn-icon">🍖</span>
-                <span class="btn-text">Feed</span>
-            </button>
-            <button class="action-btn" id="cleanBtn" data-action="clean">
-                <span class="btn-icon">🧹</span>
-                <span class="btn-text">Clean</span>
-            </button>
-            <button class="action-btn" id="sleepBtn" data-action="sleep">
-                <span class="btn-icon">🛏️</span>
-                <span class="btn-text">Sleep</span>
-            </button>
-            <button class="action-btn" id="playBtn" data-action="play">
-                <span class="btn-icon">🧶</span>
-                <span class="btn-text">Play</span>
-            </button>
-            <button class="action-btn" id="medicineBtn" data-action="medicine">
-                <span class="btn-icon">💊</span>
-                <span class="btn-text">Medicine</span>
-            </button>
-            <button class="action-btn" id="litterBtn" data-action="litter">
-                <span class="btn-icon">🚽</span>
-                <span class="btn-text">Litter</span>
-            </button>
-        </div>
-
-        <div class="info-panel">
-            <div class="pet-name">Stachie</div>
-            <div class="pet-age">Age: 10 years</div>
-            <div class="pet-mood" id="moodDisplay">Mood: Content</div>
+        <div class="fab-container">
+            <div class="action-menu" id="actionMenu">
+                <button class="action-btn" data-action="feed">🍖</button>
+                <button class="action-btn" data-action="clean">🧹</button>
+                <button class="action-btn" data-action="sleep">😴</button>
+                <button class="action-btn" data-action="play">🧶</button>
+                <button class="action-btn" data-action="medicine">💊</button>
+                <button class="action-btn" data-action="pet">💝</button>
+            </div>
+            <button class="fab" id="fabButton">➕</button>
         </div>
     </div>
 
     <div class="notification" id="notification"></div>
 
-    <script src="script.js"></script>
+    <!-- Background Settings Modal -->
+    <div class="bg-modal" id="bgModal">
+        <div class="bg-modal-content">
+            <div class="bg-modal-header">
+                <h2 class="bg-modal-title">Background Settings</h2>
+                <button class="bg-close" id="bgCloseBtn">×</button>
+            </div>
+
+            <div class="bg-section">
+                <h3 class="bg-section-title">Choose Background</h3>
+                <div class="bg-options">
+                    <div class="bg-option selected" data-bg="default">
+                        <div class="bg-preview" style="background: linear-gradient(180deg, #FFF5F9 0%, #FFFFFF 100%);">
+                            Default
+                        </div>
+                    </div>
+                    <div class="bg-option" data-bg="bg-1">
+                        <div class="bg-preview" style="background-image: url('bg-1.png');">
+                            Theme 1
+                        </div>
+                    </div>
+                    <div class="bg-option" data-bg="bg-2">
+                        <div class="bg-preview" style="background-image: url('bg-2.png');">
+                            Theme 2
+                        </div>
+                    </div>
+                    <div class="bg-option" data-bg="bg-3">
+                        <div class="bg-preview" style="background-image: url('bg-3.png');">
+                            Theme 3
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-section">
+                <h3 class="bg-section-title">Background Elements</h3>
+                <div class="bg-elements">
+                    <div class="bg-element">
+                        <div class="bg-element-info">
+                            <span class="bg-element-icon">✨</span>
+                            <span class="bg-element-name">Stars</span>
+                        </div>
+                        <div class="bg-toggle active" data-element="bgStars"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class StachieSpritePet {
+            constructor() {
+                this.stats = {
+                    hunger: 70,
+                    hygiene: 80,
+                    energy: 60,
+                    happiness: 75
+                };
+
+                this.state = {
+                    currentAnimation: 'idle',
+                    activeAnimation: null, // Will store the randomly selected animation object
+                    mood: 'content',
+                    isSleeping: false,
+                    isEating: false,
+                    isPlaying: false,
+                    isSick: false,
+                    currentFrame: 0,
+                    animationSpeed: 200,
+                    animationLoops: 0, // Current loop count
+                    maxAnimationLoops: 1, // How many times to loop before returning to idle
+                    animationCallback: null // Callback to execute when animation completes
+                };
+
+                this.animationInterval = null;
+
+                // Background settings
+                this.backgroundSettings = {
+                    currentBackground: 'default',
+                    elements: {
+                        bgStars: true,
+                        bgClouds: true,
+                        bgFlowers: true,
+                        bgTrees: true,
+                        bgButterflies: true
+                    }
+                };
+
+                // Sprite animations mapping (arrays of variations for each action)
+                this.animations = {
+                    idle: [
+                        { row: 0, frames: 6, speed: 500 },
+                        { row: 1, frames: 3, speed: 600 }, // sitting variation
+                        { row: 12, frames: 8, speed: 400 } // sitting variation
+                    ],
+                    sleeping: [
+                        { row: 3, frames: 4, speed: 1000 },
+                        { row: 14, frames: 4, speed: 1000 } // alternative sleeping pose
+                    ],
+                    eating: [
+                        { row: 3, frames: 10, speed: 200 },
+                        { row: 8, frames: 12, speed: 180 } // different eating animation
+                    ],
+                    playing: [
+                        { row: 9, frames: 12, speed: 250 }, // in box playing
+                        { row: 8, frames: 10, speed: 300 }, // yarn playing
+                        { row: 7, frames: 12, speed: 300 } // in box playing
+                    ],
+                    grooming: [
+                        { row: 13, frames: 8, speed: 250 },
+                        { row: 9, frames: 12, speed: 200 } // alternative grooming
+                    ],
+                    walking: [
+                        { row: 14, frames: 5, speed: 200 }
+                    ],
+                    happy: [
+                        { row: 11, frames: 4, speed: 200 },
+                        { row: 16, frames: 8, speed: 180 }, // alternative happy animation
+                        { row: 4, frames: 10, speed: 250 } // alternative happy animation
+                    ],
+                    crying: [
+                        { row: 10, frames: 4, speed: 300 },
+                    ]
+                };
+
+                this.sprite = document.getElementById('petSprite');
+                this.uiVisible = true;
+                this.menuOpen = false;
+
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.startGameLoop();
+                this.updateDisplay();
+                this.setAnimation('idle');
+                this.loadBackgroundSettings();
+            }
+
+            setupEventListeners() {
+                // FAB button
+                const fabButton = document.getElementById('fabButton');
+                const actionMenu = document.getElementById('actionMenu');
+
+                fabButton.addEventListener('click', () => {
+                    this.menuOpen = !this.menuOpen;
+                    fabButton.classList.toggle('active');
+                    actionMenu.classList.toggle('show');
+                });
+
+                // Action buttons
+                document.querySelectorAll('.action-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const action = e.currentTarget.dataset.action;
+                        this.performAction(action);
+                        // Close menu after action
+                        this.menuOpen = false;
+                        fabButton.classList.remove('active');
+                        actionMenu.classList.remove('show');
+                    });
+                });
+
+                // Toggle UI button
+                document.getElementById('toggleUI').addEventListener('click', () => {
+                    this.toggleUI();
+                });
+
+                // Click on pet for petting
+                this.sprite.addEventListener('click', () => {
+                    this.pet();
+                });
+
+                // Debug panel toggle
+                document.getElementById('debugHeader').addEventListener('click', () => {
+                    this.toggleDebugPanel();
+                });
+
+                // Background settings
+                document.getElementById('bgSettingsBtn').addEventListener('click', () => {
+                    this.openBackgroundModal();
+                });
+
+                document.getElementById('bgCloseBtn').addEventListener('click', () => {
+                    this.closeBackgroundModal();
+                });
+
+                // Close modal when clicking outside
+                document.getElementById('bgModal').addEventListener('click', (e) => {
+                    if (e.target.id === 'bgModal') {
+                        this.closeBackgroundModal();
+                    }
+                });
+
+                // Background option selection
+                document.querySelectorAll('.bg-option').forEach(option => {
+                    option.addEventListener('click', () => {
+                        this.selectBackground(option.dataset.bg);
+                    });
+                });
+
+                // Background element toggles
+                document.querySelectorAll('.bg-toggle').forEach(toggle => {
+                    toggle.addEventListener('click', () => {
+                        this.toggleBackgroundElement(toggle.dataset.element);
+                    });
+                });
+            }
+
+            toggleUI() {
+                this.uiVisible = !this.uiVisible;
+                const container = document.querySelector('.game-container');
+                container.classList.toggle('fullscreen-mode');
+
+                const toggleBtn = document.getElementById('toggleUI');
+                toggleBtn.textContent = this.uiVisible ? '👁️' : '👁️‍🗨️';
+            }
+
+            setAnimation(animationName, loops = 1, callback = null) {
+                if (!this.animations[animationName]) return;
+
+                this.state.currentAnimation = animationName;
+                this.state.currentFrame = 0;
+                this.state.animationLoops = 0;
+                this.state.maxAnimationLoops = loops;
+                this.state.animationCallback = callback;
+
+                // Randomly select from available animation variations
+                const variations = this.animations[animationName];
+                const randomIndex = Math.floor(Math.random() * variations.length);
+                this.state.activeAnimation = variations[randomIndex];
+                this.state.animationSpeed = this.state.activeAnimation.speed;
+
+                // Restart animation loop with new speed
+                this.startAnimationLoop();
+            }
+
+            startAnimationLoop() {
+                // Clear existing animation interval
+                if (this.animationInterval) {
+                    clearInterval(this.animationInterval);
+                }
+
+                this.animate();
+
+                // Start new interval with current animation speed
+                this.animationInterval = setInterval(() => {
+                    this.animate();
+                }, this.state.animationSpeed);
+            }
+
+            updateSpritePosition() {
+                if (!this.state.activeAnimation) return;
+
+                // Each sprite is 64x64 pixels (adjust based on your sprite sheet)
+                const spriteSize = 64;
+                const x = this.state.currentFrame * spriteSize;
+                const y = this.state.activeAnimation.row * spriteSize;
+                this.sprite.style.backgroundPosition = `-${x}px -${y}px`;
+            }
+
+            animate() {
+                if (!this.state.activeAnimation) return;
+
+                this.state.currentFrame = (this.state.currentFrame + 1) % this.state.activeAnimation.frames;
+
+                // Check if we completed a full animation cycle
+                if (this.state.currentFrame === 0) {
+                    this.state.animationLoops++;
+
+                    // If maxAnimationLoops is 0, animate forever (don't return to idle)
+                    if (this.state.maxAnimationLoops === 0) {
+                        // Continue animating forever, just update sprite position
+                        this.updateSpritePosition();
+                        return;
+                    }
+
+                    // If we've completed the required loops, execute callback and return to idle
+                    if (this.state.animationLoops >= this.state.maxAnimationLoops && this.state.currentAnimation !== 'idle') {
+                        // Execute callback if provided
+                        if (this.state.animationCallback) {
+                            this.state.animationCallback();
+                            this.state.animationCallback = null; // Clear callback after execution
+                        }
+                        this.setAnimation('idle');
+                        return;
+                    }
+                }
+
+                this.updateSpritePosition();
+            }
+
+            performAction(action) {
+                if (this.state.isSleeping && action !== 'sleep') {
+                    this.showNotification("Stachie is sleeping! 😴");
+                    return;
+                }
+
+                switch(action) {
+                    case 'feed':
+                        this.feed();
+                        break;
+                    case 'clean':
+                        this.clean();
+                        break;
+                    case 'sleep':
+                        this.toggleSleep();
+                        break;
+                    case 'play':
+                        this.play();
+                        break;
+                    case 'medicine':
+                        this.giveMedicine();
+                        break;
+                    case 'pet':
+                        this.pet();
+                        break;
+                }
+            }
+
+            feed() {
+                if (this.stats.hunger > 80) {
+                    this.showNotification("Stachie is full! 😊");
+                    return;
+                }
+
+                this.state.isEating = true;
+                this.stats.hunger = Math.min(100, this.stats.hunger + 30);
+                // Animation will handle cleanup when done
+                this.setAnimation('eating', 2, () => {
+                    this.state.isEating = false;
+                    this.hideThought();
+                });
+                this.showThought('😋');
+                this.showNotification("Yummy! 🍖");
+
+                this.updateDisplay();
+            }
+
+            clean() {
+                if (this.stats.hygiene > 80) {
+                    this.showNotification("Stachie is already clean! ✨");
+                    return;
+                }
+
+                this.stats.hygiene = Math.min(100, this.stats.hygiene + 25);
+                this.showThought('🧼');
+                this.showNotification("All clean! 🧹");
+
+                // Animation will handle cleanup when done
+                this.setAnimation('grooming', 2, () => {
+                    this.hideThought();
+                });
+
+                this.updateDisplay();
+            }
+
+            toggleSleep() {
+                this.state.isSleeping = !this.state.isSleeping;
+
+                if (this.state.isSleeping) {
+                    this.setAnimation('sleeping', 0);
+                    this.showNotification("Sweet dreams! 😴");
+                    this.showThought('💤');
+                    document.querySelector('.pet-area').style.filter = 'brightness(0.7)';
+                } else {
+                    this.setAnimation('idle');
+                    this.stats.energy = Math.min(100, this.stats.energy + 40);
+                    this.showNotification("Good morning! ☀️");
+                    this.hideThought();
+                    document.querySelector('.pet-area').style.filter = 'brightness(1)';
+                }
+
+                this.updateDisplay();
+            }
+
+            play() {
+                if (this.stats.energy < 20) {
+                    this.setAnimation('crying');
+                    this.showNotification("Stachie is too tired! 😫");
+                    return;
+                }
+
+                this.state.isPlaying = true;
+                this.stats.energy = Math.max(0, this.stats.energy - 15);
+                this.stats.happiness = Math.min(100, this.stats.happiness + 20);
+                this.showThought('🧶');
+                this.showNotification("So fun! 🎉");
+
+                const playAnimations = ['playing'];
+                const randomPlay = playAnimations[Math.floor(Math.random() * playAnimations.length)];
+
+                // Animation will handle cleanup when done
+                this.setAnimation(randomPlay, 3, () => {
+                    this.state.isPlaying = false;
+                    this.hideThought();
+                });
+
+                this.updateDisplay();
+            }
+
+            pet() {
+                this.stats.happiness = Math.min(100, this.stats.happiness + 10);
+                this.showThought('💕');
+                this.showNotification("Purr purr! 😻");
+
+                // Animation will handle cleanup when done
+                this.setAnimation('happy', 3, () => {
+                    this.hideThought();
+                });
+
+                this.updateDisplay();
+            }
+
+            giveMedicine() {
+                if (!this.state.isSick) {
+                    this.showNotification("Stachie is healthy! 💪");
+                    return;
+                }
+
+                this.state.isSick = false;
+                this.stats.happiness = Math.min(100, this.stats.happiness + 30);
+                this.showThought('💊');
+                this.showNotification("Feeling better! 💕");
+
+                setTimeout(() => this.hideThought(), 2000);
+                this.updateDisplay();
+            }
+
+            startGameLoop() {
+                // Animation loop - use new method that handles speed changes
+                this.startAnimationLoop();
+
+                // Stats update loop
+                setInterval(() => {
+                    this.updateStats();
+                    this.checkHealth();
+                    this.updateMood();
+                    this.updateDisplay();
+                }, 2000);
+
+                // Auto-save
+                setInterval(() => {
+                    this.saveGame();
+                }, 10000);
+            }
+
+            updateStats() {
+                if (!this.state.isSleeping) {
+                    this.stats.hunger = Math.max(0, this.stats.hunger - 0.5);
+                    this.stats.energy = Math.max(0, this.stats.energy - 0.3);
+                    this.stats.happiness = Math.max(0, this.stats.happiness - 0.2);
+                } else {
+                    this.stats.energy = Math.min(100, this.stats.energy + 0.8);
+                }
+
+                this.stats.hygiene = Math.max(0, this.stats.hygiene - 0.2);
+            }
+
+            checkHealth() {
+                const avgStats = (this.stats.hunger + this.stats.hygiene + this.stats.energy + this.stats.happiness) / 4;
+
+                if (avgStats < 30) {
+                    this.state.isSick = true;
+                } else if (avgStats > 60) {
+                    this.state.isSick = false;
+                }
+            }
+
+            updateMood() {
+                const avgStats = (this.stats.hunger + this.stats.hygiene + this.stats.energy + this.stats.happiness) / 4;
+
+                if (this.state.isSick) {
+                    this.state.mood = '😷 Sick';
+                } else if (avgStats < 30) {
+                    this.state.mood = '😢 Sad';
+                } else if (avgStats < 50) {
+                    this.state.mood = '😟 Worried';
+                } else if (avgStats < 70) {
+                    this.state.mood = '😌 Content';
+                } else {
+                    this.state.mood = '😊 Happy';
+                }
+
+                // Change idle animation based on mood
+                if (!this.state.isEating && !this.state.isPlaying && !this.state.isSleeping) {
+                    if (avgStats > 70) {
+                        this.setAnimation('happy', 0);
+                    } else if (avgStats > 40) {
+                        this.setAnimation('sitting', 0);
+                    } else {
+                        this.setAnimation('idle', 0);
+                    }
+                }
+            }
+
+            updateDisplay() {
+                document.getElementById('hungerBar').style.width = `${this.stats.hunger}%`;
+                document.getElementById('hygieneBar').style.width = `${this.stats.hygiene}%`;
+                document.getElementById('energyBar').style.width = `${this.stats.energy}%`;
+                document.getElementById('happinessBar').style.width = `${this.stats.happiness}%`;
+                document.getElementById('moodDisplay').textContent = this.state.mood;
+                this.updateDebugDisplay();
+            }
+
+                        updateDebugDisplay() {
+                const debugInfo = document.getElementById('debugInfo');
+                const activeAnim = this.state.activeAnimation;
+
+                debugInfo.innerHTML = `
+                    <div>Current: ${this.state.currentAnimation}</div>
+                    <div>Frame: ${this.state.currentFrame}</div>
+                    <div>Speed: ${this.state.animationSpeed}ms</div>
+                    <div>Loops: ${this.state.animationLoops}/${this.state.maxAnimationLoops === 0 ? '∞' : this.state.maxAnimationLoops}</div>
+                    ${activeAnim ? `<div>Row: ${activeAnim.row}, Frames: ${activeAnim.frames}</div>` : '<div>No active animation</div>'}
+                    <div>Sleeping: ${this.state.isSleeping}</div>
+                    <div>Eating: ${this.state.isEating}</div>
+                    <div>Playing: ${this.state.isPlaying}</div>
+                    <div>Sick: ${this.state.isSick}</div>
+                    <div>Mood: ${this.state.mood}</div>
+                `;
+            }
+
+                        toggleDebugPanel() {
+                const debugPanel = document.getElementById('debugPanel');
+                const debugToggle = document.getElementById('debugToggle');
+
+                debugPanel.classList.toggle('collapsed');
+                debugToggle.textContent = debugPanel.classList.contains('collapsed') ? '+' : '−';
+            }
+
+            // Background Settings Methods
+            openBackgroundModal() {
+                document.getElementById('bgModal').classList.add('show');
+                this.updateBackgroundModal();
+            }
+
+            closeBackgroundModal() {
+                document.getElementById('bgModal').classList.remove('show');
+            }
+
+            selectBackground(backgroundId) {
+                this.backgroundSettings.currentBackground = backgroundId;
+                this.applyBackground();
+                this.updateBackgroundModal();
+                this.saveBackgroundSettings();
+            }
+
+            toggleBackgroundElement(elementId) {
+                this.backgroundSettings.elements[elementId] = !this.backgroundSettings.elements[elementId];
+                this.applyBackgroundElements();
+                this.updateBackgroundModal();
+                this.saveBackgroundSettings();
+            }
+
+                        applyBackground() {
+                const petArea = document.getElementById('petArea');
+
+                if (this.backgroundSettings.currentBackground === 'default') {
+                    petArea.style.background = 'linear-gradient(180deg, #FFF5F9 0%, #FFFFFF 100%)';
+                    petArea.style.backgroundImage = 'none';
+                    petArea.classList.remove('on-floor');
+                } else {
+                    petArea.style.background = 'none';
+                    petArea.style.backgroundImage = `url('${this.backgroundSettings.currentBackground}.png')`;
+                    petArea.style.backgroundSize = 'cover';
+                    petArea.style.backgroundPosition = 'center';
+                    petArea.style.backgroundRepeat = 'no-repeat';
+                    petArea.classList.add('on-floor');
+                }
+            }
+
+            applyBackgroundElements() {
+                Object.keys(this.backgroundSettings.elements).forEach(elementId => {
+                    const element = document.getElementById(elementId);
+                    if (element) {
+                        if (this.backgroundSettings.elements[elementId]) {
+                            element.classList.remove('hidden');
+                        } else {
+                            element.classList.add('hidden');
+                        }
+                    }
+                });
+            }
+
+            updateBackgroundModal() {
+                // Update selected background option
+                document.querySelectorAll('.bg-option').forEach(option => {
+                    option.classList.remove('selected');
+                    if (option.dataset.bg === this.backgroundSettings.currentBackground) {
+                        option.classList.add('selected');
+                    }
+                });
+
+                // Update element toggles
+                document.querySelectorAll('.bg-toggle').forEach(toggle => {
+                    const elementId = toggle.dataset.element;
+                    if (this.backgroundSettings.elements[elementId]) {
+                        toggle.classList.add('active');
+                    } else {
+                        toggle.classList.remove('active');
+                    }
+                });
+            }
+
+            saveBackgroundSettings() {
+                localStorage.setItem('stachie_background_settings', JSON.stringify(this.backgroundSettings));
+            }
+
+            loadBackgroundSettings() {
+                const saved = localStorage.getItem('stachie_background_settings');
+                if (saved) {
+                    this.backgroundSettings = { ...this.backgroundSettings, ...JSON.parse(saved) };
+                }
+                this.applyBackground();
+                this.applyBackgroundElements();
+            }
+
+            showThought(emoji) {
+                const bubble = document.getElementById('thoughtBubble');
+                bubble.textContent = emoji;
+                bubble.style.display = 'block';
+            }
+
+            hideThought() {
+                document.getElementById('thoughtBubble').style.display = 'none';
+            }
+
+            showNotification(message) {
+                const notification = document.getElementById('notification');
+                notification.textContent = message;
+                notification.classList.add('show');
+
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 2000);
+            }
+
+            saveGame() {
+                const gameData = {
+                    stats: this.stats,
+                    state: {
+                        mood: this.state.mood,
+                        isSick: this.state.isSick
+                    },
+                    timestamp: Date.now()
+                };
+                localStorage.setItem('stachieGame', JSON.stringify(gameData));
+            }
+
+            loadGame() {
+                const saved = localStorage.getItem('stachieGame');
+                if (saved) {
+                    const gameData = JSON.parse(saved);
+                    const timePassed = (Date.now() - gameData.timestamp) / 1000 / 60;
+
+                    this.stats = gameData.stats;
+                    this.state.mood = gameData.state.mood;
+                    this.state.isSick = gameData.state.isSick;
+
+                    // Decay stats based on time away
+                    this.stats.hunger = Math.max(0, this.stats.hunger - timePassed * 0.5);
+                    this.stats.energy = Math.max(0, this.stats.energy - timePassed * 0.3);
+                    this.stats.hygiene = Math.max(0, this.stats.hygiene - timePassed * 0.2);
+                    this.stats.happiness = Math.max(0, this.stats.happiness - timePassed * 0.1);
+
+                    this.showNotification(`Welcome back! Stachie missed you! 💕`);
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const game = new StachieSpritePet();
+            game.loadGame();
+        });
+    </script>
 </body>
 </html>
