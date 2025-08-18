@@ -117,7 +117,7 @@
 
         .pet-area.on-floor {
             align-items: flex-end;
-            padding-bottom: 80px;
+            padding-bottom: 50%;
         }
 
         .sprite-container {
@@ -1239,8 +1239,13 @@
                 this.saveBackgroundSettings();
             }
 
-                        applyBackground() {
+            applyBackground() {
                 const petArea = document.getElementById('petArea');
+                const backgroundColorMap = {
+                    'bg-1': 'rgb(231, 201, 183)',
+                    'bg-2': 'rgb(125, 129, 137)',
+                    'bg-3': 'rgb(170, 170, 170)',
+                }
 
                 if (this.backgroundSettings.currentBackground === 'default') {
                     petArea.style.background = 'linear-gradient(180deg, #FFF5F9 0%, #FFFFFF 100%)';
@@ -1249,10 +1254,13 @@
                 } else {
                     petArea.style.background = 'none';
                     petArea.style.backgroundImage = `url('${this.backgroundSettings.currentBackground}.png')`;
-                    petArea.style.backgroundSize = 'cover';
-                    petArea.style.backgroundPosition = 'center';
+                    petArea.style.backgroundSize = 'contain';
+                    petArea.style.backgroundPositionX = 'center';
+                    petArea.style.backgroundPosition = 'top';
                     petArea.style.backgroundRepeat = 'no-repeat';
                     petArea.classList.add('on-floor');
+                    petArea.style.backgroundColor = backgroundColorMap[this.backgroundSettings.currentBackground];
+                    petArea.style.backgroundSize = '100% 75%';
                 }
             }
 
