@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#FFE5F1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
     <title>Stachie's World</title>
     <style>
         * {
@@ -18,7 +22,7 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Silkscreen', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #FFE5F1 0%, #FFF0F5 100%);
             min-height: 100vh;
             display: flex;
@@ -99,10 +103,21 @@
             position: relative;
         }
 
-        .hunger-fill { background: linear-gradient(90deg, #FFB347, #FF6B6B); }
-        .hygiene-fill { background: linear-gradient(90deg, #87CEEB, #4A90E2); }
-        .energy-fill { background: linear-gradient(90deg, #FFD700, #FFA500); }
-        .happiness-fill { background: linear-gradient(90deg, #FF69B4, #FF1493); }
+        .hunger-fill {
+            background: linear-gradient(90deg, #FFB347, #FF6B6B);
+        }
+
+        .hygiene-fill {
+            background: linear-gradient(90deg, #87CEEB, #4A90E2);
+        }
+
+        .energy-fill {
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+        }
+
+        .happiness-fill {
+            background: linear-gradient(90deg, #FF69B4, #FF1493);
+        }
 
         /* Main pet area */
         .pet-area {
@@ -122,23 +137,24 @@
 
         .sprite-container {
             position: relative;
-            width: 256px;
-            height: 256px;
+            width: 128px;
+            height: 128px;
             image-rendering: pixelated;
             image-rendering: -moz-crisp-edges;
             image-rendering: crisp-edges;
         }
 
         .sprite {
-            width: 64px;
-            height: 64px;
-            background-image: url('stachie-sprites.png');
+            width: 32px;
+            height: 32px;
+            background-image: url('stachie-sprites-2.png');
             background-size: auto;
             background-repeat: no-repeat;
             image-rendering: pixelated;
             transform: scale(4);
             transform-origin: top left;
         }
+
 
         .thought-bubble {
             position: absolute;
@@ -154,8 +170,15 @@
         }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-5px);
+            }
         }
 
         /* Floating action button */
@@ -224,18 +247,36 @@
             animation: slideIn 0.3s ease backwards;
         }
 
-        .action-btn:nth-child(1) { animation-delay: 0.05s; }
-        .action-btn:nth-child(2) { animation-delay: 0.1s; }
-        .action-btn:nth-child(3) { animation-delay: 0.15s; }
-        .action-btn:nth-child(4) { animation-delay: 0.2s; }
-        .action-btn:nth-child(5) { animation-delay: 0.25s; }
-        .action-btn:nth-child(6) { animation-delay: 0.3s; }
+        .action-btn:nth-child(1) {
+            animation-delay: 0.05s;
+        }
+
+        .action-btn:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .action-btn:nth-child(3) {
+            animation-delay: 0.15s;
+        }
+
+        .action-btn:nth-child(4) {
+            animation-delay: 0.2s;
+        }
+
+        .action-btn:nth-child(5) {
+            animation-delay: 0.25s;
+        }
+
+        .action-btn:nth-child(6) {
+            animation-delay: 0.3s;
+        }
 
         @keyframes slideIn {
             from {
                 opacity: 0;
                 transform: translateY(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -507,6 +548,32 @@
             transform: translateX(26px);
         }
 
+        .reset-btn {
+            width: 100%;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #FF6B6B, #FF8787);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .reset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.3);
+        }
+
+        .reset-btn:active {
+            transform: translateY(0);
+        }
+
         /* Background Settings Button */
         .bg-settings-btn {
             position: absolute;
@@ -538,24 +605,55 @@
         }
 
         @keyframes twinkle {
-            0% { opacity: 0.5; transform: scale(1); }
-            100% { opacity: 1; transform: scale(1.2); }
+            0% {
+                opacity: 0.5;
+                transform: scale(1);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
         }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
         }
 
         @keyframes sway {
-            0%, 100% { transform: rotate(-2deg); }
-            50% { transform: rotate(2deg); }
+
+            0%,
+            100% {
+                transform: rotate(-2deg);
+            }
+
+            50% {
+                transform: rotate(2deg);
+            }
         }
 
         @keyframes flutter {
-            0%, 100% { transform: translateX(0) translateY(0); }
-            25% { transform: translateX(5px) translateY(-3px); }
-            75% { transform: translateX(-3px) translateY(3px); }
+
+            0%,
+            100% {
+                transform: translateX(0) translateY(0);
+            }
+
+            25% {
+                transform: translateX(5px) translateY(-3px);
+            }
+
+            75% {
+                transform: translateX(-3px) translateY(3px);
+            }
         }
 
         /* Notification */
@@ -614,6 +712,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="game-container">
         <button class="toggle-ui" id="toggleUI">👁️</button>
@@ -730,18 +829,25 @@
                     </div>
                 </div>
             </div>
+
+            <div class="bg-section">
+                <h3 class="bg-section-title">Data Management</h3>
+                <button class="reset-btn" id="resetAllBtn">🔄 Reset All Data</button>
+                <p style="font-size: 12px; color: #999; margin-top: 10px;">This will reset all game data and settings to default.</p>
+            </div>
         </div>
     </div>
 
     <script>
         class StachieSpritePet {
             constructor() {
-                this.stats = {
+                this.default_stats = {
                     hunger: 70,
                     hygiene: 80,
                     energy: 60,
                     happiness: 75
                 };
+                this.stats = this.default_stats
 
                 this.state = {
                     currentAnimation: 'idle',
@@ -772,40 +878,44 @@
                     }
                 };
 
-                // Sprite animations mapping (arrays of variations for each action)
                 this.animations = {
                     idle: [
-                        { row: 0, frames: 6, speed: 500 },
-                        { row: 1, frames: 3, speed: 600 }, // sitting variation
-                        { row: 12, frames: 8, speed: 400 } // sitting variation
+                        { row: 0, frames: 10, speed: 500 },
+                        { row: 1, frames: 10, speed: 500 },
+                        { row: 6, frames: 12, speed: 500 },
+                        { row: 14, frames: 6, speed: 450 },
                     ],
                     sleeping: [
-                        { row: 3, frames: 4, speed: 1000 },
-                        { row: 14, frames: 4, speed: 1000 } // alternative sleeping pose
+                        { row: 2, frames: 4, speed: 1000 },
                     ],
                     eating: [
-                        { row: 3, frames: 10, speed: 200 },
-                        { row: 8, frames: 12, speed: 180 } // different eating animation
+                        { row: 13, frames: 15, speed: 200 },
                     ],
                     playing: [
                         { row: 9, frames: 12, speed: 250 }, // in box playing
-                        { row: 8, frames: 10, speed: 300 }, // yarn playing
-                        { row: 7, frames: 12, speed: 300 } // in box playing
+                        { row: 10, frames: 4, speed: 300 }, // yarn playing
+                        { row: 11, frames: 4, speed: 300 } // in box playing
                     ],
                     grooming: [
-                        { row: 13, frames: 8, speed: 250 },
-                        { row: 9, frames: 12, speed: 200 } // alternative grooming
-                    ],
-                    walking: [
-                        { row: 14, frames: 5, speed: 200 }
+                        { row: 19, frames: 12, speed: 100 }
                     ],
                     happy: [
-                        { row: 11, frames: 4, speed: 200 },
-                        { row: 16, frames: 8, speed: 180 }, // alternative happy animation
-                        { row: 4, frames: 10, speed: 250 } // alternative happy animation
+                        { row: 3, frames: 4, speed: 250 },
+                        { row: 5, frames: 12, speed: 250 }, // alternative happy animation
                     ],
-                    crying: [
-                        { row: 10, frames: 4, speed: 300 },
+                    tired: [
+                        { row: 4, frames: 8, speed: 300 },
+                        { row: 8, frames: 4, speed: 300 },
+                    ],
+                    sick: [
+                        { row: 20, frames: 5, speed: 250 },
+                        { row: 21, frames: 4, speed: 250 },
+                    ],
+                    angry: [
+                        { row: 16, frames: 9, speed: 250 },
+                    ],
+                    refusing: [
+                        { row: 15, frames: 13, speed: 350 },
                     ]
                 };
 
@@ -869,6 +979,11 @@
 
                 document.getElementById('bgCloseBtn').addEventListener('click', () => {
                     this.closeBackgroundModal();
+                });
+
+                // Reset button event listener
+                document.getElementById('resetAllBtn').addEventListener('click', () => {
+                    this.resetAll();
                 });
 
                 // Close modal when clicking outside
@@ -939,7 +1054,7 @@
                 if (!this.state.activeAnimation) return;
 
                 // Each sprite is 64x64 pixels (adjust based on your sprite sheet)
-                const spriteSize = 64;
+                const spriteSize = 32;
                 const x = this.state.currentFrame * spriteSize;
                 const y = this.state.activeAnimation.row * spriteSize;
                 this.sprite.style.backgroundPosition = `-${x}px -${y}px`;
@@ -982,7 +1097,7 @@
                     return;
                 }
 
-                switch(action) {
+                switch (action) {
                     case 'feed':
                         this.feed();
                         break;
@@ -1034,7 +1149,7 @@
                 this.showNotification("All clean! 🧹");
 
                 // Animation will handle cleanup when done
-                this.setAnimation('grooming', 2, () => {
+                this.setAnimation('grooming', 5, () => {
                     this.hideThought();
                 });
 
@@ -1062,7 +1177,7 @@
 
             play() {
                 if (this.stats.energy < 20) {
-                    this.setAnimation('crying');
+                    this.setAnimation('tired');
                     this.showNotification("Stachie is too tired! 😫");
                     return;
                 }
@@ -1189,7 +1304,7 @@
                 this.updateDebugDisplay();
             }
 
-                        updateDebugDisplay() {
+            updateDebugDisplay() {
                 const debugInfo = document.getElementById('debugInfo');
                 const activeAnim = this.state.activeAnimation;
 
@@ -1207,7 +1322,7 @@
                 `;
             }
 
-                        toggleDebugPanel() {
+            toggleDebugPanel() {
                 const debugPanel = document.getElementById('debugPanel');
                 const debugToggle = document.getElementById('debugToggle');
 
@@ -1361,6 +1476,39 @@
                     this.showNotification(`Welcome back! Stachie missed you! 💕`);
                 }
             }
+
+            resetAll() {
+                if (confirm('Are you sure you want to reset all data? This cannot be undone!')) {
+                    // Clear all localStorage items
+                    localStorage.removeItem('stachieGame');
+                    localStorage.removeItem('stachie_background_settings');
+
+                    // Reset stats to default
+                    this.stats = this.default_stats;
+
+                    // Reset state to default
+                    this.state.mood = 'content';
+                    this.state.isSick = false;
+
+                    // Reset background settings to default
+                    // this.backgroundSettings = {
+                    //     currentBackground: 'default',
+                    //     elements: {
+                    //         bgStars: true
+                    //     }
+                    // };
+
+                    // Apply default settings
+                    this.applyBackground();
+                    this.applyBackgroundElements();
+                    this.updateBackgroundModal();
+                    this.updateStats();
+
+                    // Close modal and show notification
+                    document.getElementById('bgModal').classList.remove('show');
+                    this.showNotification('All data has been reset! 🔄');
+                }
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -1369,4 +1517,5 @@
         });
     </script>
 </body>
+
 </html>
