@@ -574,6 +574,79 @@
             transform: translateY(0);
         }
 
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #FFE5F1 0%, #FFF0F5 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-content {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading-sprite {
+            width: 96px;
+            height: 96px;
+            margin: 0 auto 30px;
+            background-image: url('stachie-sprites-2.png');
+            background-size: 1536px 1536px;
+            background-position: 0 0;
+            image-rendering: pixelated;
+            animation: loadingAnimation 1s steps(10) infinite;
+        }
+
+        @keyframes loadingAnimation {
+            to {
+                background-position: -960px 0;
+            }
+        }
+
+        .loading-text {
+            font-size: 24px;
+            color: #7B5FFF;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .loading-bar {
+            width: 300px;
+            height: 20px;
+            background: rgba(123, 95, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0 auto 15px;
+            border: 2px solid #7B5FFF;
+        }
+
+        .loading-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #7B5FFF, #967CFF);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 8px;
+        }
+
+        .loading-status {
+            font-size: 14px;
+            color: #967CFF;
+            opacity: 0.8;
+        }
+
         /* Background Settings Button */
         .bg-settings-btn {
             position: absolute;
@@ -714,7 +787,19 @@
 </head>
 
 <body>
-    <div class="game-container">
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-content">
+            <div class="loading-sprite"></div>
+            <div class="loading-text">Loading Stachie's World...</div>
+            <div class="loading-bar">
+                <div class="loading-progress" id="loadingProgress"></div>
+            </div>
+            <div class="loading-status" id="loadingStatus">Initializing...</div>
+        </div>
+    </div>
+
+    <div class="game-container" style="display: none;">
         <button class="toggle-ui" id="toggleUI">👁️</button>
         <button class="bg-settings-btn" id="bgSettingsBtn">🎨</button>
 
@@ -857,6 +942,7 @@
                     isEating: false,
                     isPlaying: false,
                     isSick: false,
+                    isPerformingAction: false, // Flag to prevent mood updates during actions
                     currentFrame: 0,
                     animationSpeed: 200,
                     animationLoops: 0, // Current loop count
@@ -897,7 +983,7 @@
                         { row: 11, frames: 4, speed: 300 } // in box playing
                     ],
                     grooming: [
-                        { row: 19, frames: 12, speed: 100 }
+                        { row: 19, frames: 11, speed: 600 }
                     ],
                     happy: [
                         { row: 3, frames: 4, speed: 250 },
@@ -1026,6 +1112,13 @@
                 this.state.maxAnimationLoops = loops;
                 this.state.animationCallback = callback;
 
+                // Set flag if this is an action animation
+                if (loops > 0 && animationName !== 'idle' && animationName !== 'sleeping') {
+                    this.state.isPerformingAction = true;
+                } else if (animationName === 'idle') {
+                    this.state.isPerformingAction = false;
+                }
+
                 // Randomly select from available animation variations
                 const variations = this.animations[animationName];
                 const randomIndex = Math.floor(Math.random() * variations.length);
@@ -1076,14 +1169,22 @@
                         return;
                     }
 
-                    // If we've completed the required loops, execute callback and return to idle
-                    if (this.state.animationLoops >= this.state.maxAnimationLoops && this.state.currentAnimation !== 'idle') {
+                    // If we've completed the required loops
+                    if (this.state.animationLoops > this.state.maxAnimationLoops && this.state.currentAnimation !== 'idle' && this.state.currentAnimation !== 'sleeping') {
+                        // Clear action flag
+                        this.state.isPerformingAction = false;
+                        
                         // Execute callback if provided
                         if (this.state.animationCallback) {
-                            this.state.animationCallback();
-                            this.state.animationCallback = null; // Clear callback after execution
+                            const callback = this.state.animationCallback;
+                            this.state.animationCallback = null;
+                            callback();
                         }
-                        this.setAnimation('idle');
+                        
+                        // Return to appropriate animation
+                        if (!this.state.isSleeping) {
+                            this.setAnimation('idle', 0);
+                        }
                         return;
                     }
                 }
@@ -1127,13 +1228,14 @@
 
                 this.state.isEating = true;
                 this.stats.hunger = Math.min(100, this.stats.hunger + 30);
+                this.showThought('😋');
+                this.showNotification("Eating... 🍖");
                 // Animation will handle cleanup when done
-                this.setAnimation('eating', 2, () => {
+                this.setAnimation('eating', 1, () => {
                     this.state.isEating = false;
                     this.hideThought();
+                    this.showNotification("Yummy! That was delicious! 😋");
                 });
-                this.showThought('😋');
-                this.showNotification("Yummy! 🍖");
 
                 this.updateDisplay();
             }
@@ -1146,14 +1248,13 @@
 
                 this.stats.hygiene = Math.min(100, this.stats.hygiene + 25);
                 this.showThought('🧼');
-                this.showNotification("All clean! 🧹");
-
+                this.showNotification("Cleaning... 🧹");
                 // Animation will handle cleanup when done
-                this.setAnimation('grooming', 5, () => {
+                this.setAnimation('grooming', 2, () => {
                     this.hideThought();
+                    this.showNotification("All clean! ✨");
                 });
 
-                this.updateDisplay();
             }
 
             toggleSleep() {
@@ -1281,6 +1382,11 @@
                     this.state.mood = '😌 Content';
                 } else {
                     this.state.mood = '😊 Happy';
+                }
+
+                // Don't change animation if performing an action
+                if (this.state.isPerformingAction) {
+                    return;
                 }
 
                 // Change idle animation based on mood
@@ -1511,9 +1617,119 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const game = new StachieSpritePet();
-            game.loadGame();
+        // Resource Loader
+        class ResourceLoader {
+            constructor() {
+                this.totalResources = 0;
+                this.loadedResources = 0;
+                this.resources = {
+                    images: [
+                        'stachie-sprites-2.png',
+                        'bg-1.png',
+                        'bg-2.png',
+                        'bg-3.png'
+                    ],
+                    fonts: ['Silkscreen']
+                };
+            }
+
+            updateProgress(status) {
+                const progress = (this.loadedResources / this.totalResources) * 100;
+                document.getElementById('loadingProgress').style.width = progress + '%';
+                document.getElementById('loadingStatus').textContent = status;
+            }
+
+            loadImage(src) {
+                return new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        this.loadedResources++;
+                        this.updateProgress(`Loading images... (${this.loadedResources}/${this.totalResources})`);
+                        resolve();
+                    };
+                    img.onerror = () => {
+                        console.warn(`Failed to load image: ${src}`);
+                        this.loadedResources++;
+                        this.updateProgress(`Loading images... (${this.loadedResources}/${this.totalResources})`);
+                        resolve(); // Continue even if image fails
+                    };
+                    img.src = src;
+                });
+            }
+
+            async loadFonts() {
+                try {
+                    await document.fonts.ready;
+                    const fontLoaded = document.fonts.check('16px Silkscreen');
+                    if (fontLoaded) {
+                        this.loadedResources++;
+                        this.updateProgress('Fonts loaded');
+                    }
+                } catch (error) {
+                    console.warn('Font loading check failed:', error);
+                    this.loadedResources++;
+                }
+            }
+
+            async loadAllResources() {
+                // Calculate total resources
+                this.totalResources = this.resources.images.length + 1; // +1 for fonts
+
+                this.updateProgress('Loading resources...');
+
+                // Load all images
+                const imagePromises = this.resources.images.map(src => this.loadImage(src));
+
+                // Load fonts
+                const fontPromise = this.loadFonts();
+
+                // Wait for all resources
+                await Promise.all([...imagePromises, fontPromise]);
+
+                this.updateProgress('Ready!');
+
+                // Small delay for smooth transition
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+
+            hideLoadingScreen() {
+                const loadingScreen = document.getElementById('loadingScreen');
+                const gameContainer = document.querySelector('.game-container');
+
+                loadingScreen.classList.add('fade-out');
+
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                    gameContainer.style.display = 'flex';
+
+                    // Trigger fade-in animation for game container
+                    gameContainer.style.opacity = '0';
+                    gameContainer.style.transition = 'opacity 0.5s ease';
+
+                    requestAnimationFrame(() => {
+                        gameContainer.style.opacity = '1';
+                    });
+                }, 500);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const loader = new ResourceLoader();
+
+            try {
+                await loader.loadAllResources();
+                loader.hideLoadingScreen();
+
+                // Initialize game after resources are loaded
+                const game = new StachieSpritePet();
+                game.loadGame();
+            } catch (error) {
+                console.error('Failed to load resources:', error);
+                // Still try to start the game
+                loader.hideLoadingScreen();
+                const game = new StachieSpritePet();
+                game.loadGame();
+            }
         });
     </script>
 </body>
