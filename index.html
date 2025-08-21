@@ -137,8 +137,8 @@
 
         .sprite-container {
             position: relative;
-            width: 128px;
-            height: 128px;
+            width: 160px;
+            height: 160px;
             image-rendering: pixelated;
             image-rendering: -moz-crisp-edges;
             image-rendering: crisp-edges;
@@ -151,8 +151,33 @@
             background-size: auto;
             background-repeat: no-repeat;
             image-rendering: pixelated;
-            transform: scale(4);
+            transform: scale(5);
             transform-origin: top left;
+            position: relative;
+            z-index: 2;
+        }
+
+        .cat-bed {
+            position: absolute;
+            width: 300px;
+            height: 200px;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            image-rendering: pixelated;
+            display: none;
+            z-index: 1;
+            left: 50%;
+            top: 20%;
+            transform: translate(-50%, -20%);
+        }
+
+        .cat-bed.show {
+            display: block;
+        }
+
+        .sprite-container.sleeping .sprite {
+            transform: scale(5) translateY(-10px);
         }
 
 
@@ -601,7 +626,7 @@
 
         .loading-sprite {
             width: 96px;
-            height: 96px;
+            height: 67px;
             margin: 0 auto 30px;
             background-image: url('stachie-sprites-2.png');
             background-size: 1536px 1536px;
@@ -783,6 +808,120 @@
         .fullscreen-mode .toggle-ui {
             background: rgba(255, 255, 255, 0.5);
         }
+
+        /* Welcome Screen */
+        .welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #FFE5F1 0%, #FFF0F5 50%, #FFB6C1 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            opacity: 0;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+            }
+        }
+
+        .welcome-content {
+            text-align: center;
+            padding: 30px;
+            max-width: 80%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(255, 20, 147, 0.2);
+            animation: scaleIn 0.5s ease 0.3s both;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .welcome-sprite {
+            width: 128px;
+            height: 128px;
+            margin: 0 auto 30px;
+            background-image: url('stachie-sprites-2.png');
+            background-size: 2048px;
+            background-position: 0 0;
+            image-rendering: pixelated;
+            animation: welcomeAnimation 1s steps(10) infinite;
+        }
+
+        @keyframes welcomeAnimation {
+            to {
+                background-position: -1280px 0;
+            }
+        }
+
+        .welcome-title {
+            font-size: 32px;
+            color: #FF1493;
+            margin-bottom: 25px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(255, 20, 147, 0.1);
+        }
+
+        .welcome-message {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 35px;
+            line-height: 1.6;
+            padding: 0 20px;
+        }
+
+        .welcome-btn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #FF69B4 0%, #FF1493 100%);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(255, 20, 147, 0.3);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .welcome-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 20, 147, 0.4);
+        }
+
+        .welcome-btn:active {
+            transform: translateY(0);
+        }
     </style>
 </head>
 
@@ -796,6 +935,19 @@
                 <div class="loading-progress" id="loadingProgress"></div>
             </div>
             <div class="loading-status" id="loadingStatus">Initializing...</div>
+        </div>
+    </div>
+
+    <!-- Welcome Screen -->
+    <div class="welcome-screen" id="welcomeScreen" style="display: none;">
+        <div class="welcome-content">
+            <div class="welcome-sprite"></div>
+            <h1 class="welcome-title">Welcome to Stachie's World!</h1>
+            <p class="welcome-message">
+                I know you love Stachie so much and it's hard to leave her at home.<br>
+                Now you have a new realm where you can have Stachie with you always 💖
+            </p>
+            <button class="welcome-btn" id="welcomeBtn">Start Your Journey</button>
         </div>
     </div>
 
@@ -834,6 +986,7 @@
 
         <div class="pet-area" id="petArea">
             <div class="sprite-container">
+                <div class="cat-bed" id="catBed"></div>
                 <div class="sprite" id="petSprite"></div>
                 <div class="thought-bubble" id="thoughtBubble"></div>
             </div>
@@ -879,11 +1032,11 @@
             <div class="bg-section">
                 <h3 class="bg-section-title">Choose Background</h3>
                 <div class="bg-options">
-                    <div class="bg-option selected" data-bg="default">
+                    <!-- <div class="bg-option selected" data-bg="default">
                         <div class="bg-preview" style="background: linear-gradient(180deg, #FFF5F9 0%, #FFFFFF 100%);">
                             Default
                         </div>
-                    </div>
+                    </div> -->
                     <div class="bg-option" data-bg="bg-1">
                         <div class="bg-preview" style="background-image: url('bg-1.png');">
                             Theme 1
@@ -897,6 +1050,52 @@
                     <div class="bg-option" data-bg="bg-3">
                         <div class="bg-preview" style="background-image: url('bg-3.png');">
                             Theme 3
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-section">
+                <h3 class="bg-section-title">Sleep Settings</h3>
+                <div class="bg-elements">
+                    <div class="bg-element">
+                        <div class="bg-element-info">
+                            <span class="bg-element-icon">🛏️</span>
+                            <span class="bg-element-name">Show Bed</span>
+                        </div>
+                        <div class="bg-toggle active" id="showBedToggle" data-element="showBed"></div>
+                    </div>
+                </div>
+                <div class="bg-section-title" style="margin-top: 20px; font-size: 16px;">Choose Bed Color</div>
+                <div class="bg-options bed-options">
+                    <div class="bg-option bed-option selected" data-bed="Blue">
+                        <div class="bg-preview" style="background: #4A90E2;">
+                            Blue
+                        </div>
+                    </div>
+                    <div class="bg-option bed-option" data-bed="Pink">
+                        <div class="bg-preview" style="background: #FFB6C1;">
+                            Pink
+                        </div>
+                    </div>
+                    <div class="bg-option bed-option" data-bed="Purple">
+                        <div class="bg-preview" style="background: #9B59B6;">
+                            Purple
+                        </div>
+                    </div>
+                    <div class="bg-option bed-option" data-bed="Green">
+                        <div class="bg-preview" style="background: #27AE60;">
+                            Green
+                        </div>
+                    </div>
+                    <div class="bg-option bed-option" data-bed="Brown">
+                        <div class="bg-preview" style="background: #8B4513;">
+                            Brown
+                        </div>
+                    </div>
+                    <div class="bg-option bed-option" data-bed="Red">
+                        <div class="bg-preview" style="background: #E74C3C;">
+                            Red
                         </div>
                     </div>
                 </div>
@@ -954,13 +1153,17 @@
 
                 // Background settings
                 this.backgroundSettings = {
-                    currentBackground: 'default',
+                    currentBackground: 'bg-1',
                     elements: {
                         bgStars: true,
                         bgClouds: true,
                         bgFlowers: true,
                         bgTrees: true,
                         bgButterflies: true
+                    },
+                    bedSettings: {
+                        showBed: true,
+                        selectedBed: 'Blue'
                     }
                 };
 
@@ -991,6 +1194,9 @@
                     ],
                     tired: [
                         { row: 4, frames: 8, speed: 300 },
+                        { row: 8, frames: 4, speed: 300 },
+                    ],
+                    crying: [
                         { row: 8, frames: 4, speed: 300 },
                     ],
                     sick: [
@@ -1080,16 +1286,27 @@
                 });
 
                 // Background option selection
-                document.querySelectorAll('.bg-option').forEach(option => {
+                document.querySelectorAll('.bg-option:not(.bed-option)').forEach(option => {
                     option.addEventListener('click', () => {
                         this.selectBackground(option.dataset.bg);
+                    });
+                });
+
+                // Bed option selection
+                document.querySelectorAll('.bed-option').forEach(option => {
+                    option.addEventListener('click', () => {
+                        this.selectBed(option.dataset.bed);
                     });
                 });
 
                 // Background element toggles
                 document.querySelectorAll('.bg-toggle').forEach(toggle => {
                     toggle.addEventListener('click', () => {
-                        this.toggleBackgroundElement(toggle.dataset.element);
+                        if (toggle.id === 'showBedToggle') {
+                            this.toggleShowBed();
+                        } else {
+                            this.toggleBackgroundElement(toggle.dataset.element);
+                        }
                     });
                 });
             }
@@ -1173,14 +1390,14 @@
                     if (this.state.animationLoops > this.state.maxAnimationLoops && this.state.currentAnimation !== 'idle' && this.state.currentAnimation !== 'sleeping') {
                         // Clear action flag
                         this.state.isPerformingAction = false;
-                        
+
                         // Execute callback if provided
                         if (this.state.animationCallback) {
                             const callback = this.state.animationCallback;
                             this.state.animationCallback = null;
                             callback();
                         }
-                        
+
                         // Return to appropriate animation
                         if (!this.state.isSleeping) {
                             this.setAnimation('idle', 0);
@@ -1259,13 +1476,27 @@
 
             toggleSleep() {
                 this.state.isSleeping = !this.state.isSleeping;
+                const catBed = document.getElementById('catBed');
+                const spriteContainer = document.querySelector('.sprite-container');
 
                 if (this.state.isSleeping) {
+                    // Show the bed if enabled
+                    if (this.backgroundSettings.bedSettings.showBed) {
+                        const selectedBed = this.backgroundSettings.bedSettings.selectedBed;
+                        catBed.style.backgroundImage = `url('catItems/beds/CatBed${selectedBed}.png')`;
+                        catBed.classList.add('show');
+                        spriteContainer.classList.add('sleeping');
+                    }
+
                     this.setAnimation('sleeping', 0);
                     this.showNotification("Sweet dreams! 😴");
                     this.showThought('💤');
                     document.querySelector('.pet-area').style.filter = 'brightness(0.7)';
                 } else {
+                    // Hide the bed
+                    catBed.classList.remove('show');
+                    spriteContainer.classList.remove('sleeping');
+
                     this.setAnimation('idle');
                     this.stats.energy = Math.min(100, this.stats.energy + 40);
                     this.showNotification("Good morning! ☀️");
@@ -1391,12 +1622,16 @@
 
                 // Change idle animation based on mood
                 if (!this.state.isEating && !this.state.isPlaying && !this.state.isSleeping) {
-                    if (avgStats > 70) {
-                        this.setAnimation('happy', 0);
-                    } else if (avgStats > 40) {
-                        this.setAnimation('sitting', 0);
+                    if (this.state.isSick) {
+                        this.setAnimation('sick', 0);
                     } else {
-                        this.setAnimation('idle', 0);
+                        if (avgStats > 70) {
+                            this.setAnimation('happy', 0);
+                        } else if (avgStats > 40) {
+                            this.setAnimation('idle', 0);
+                        } else {
+                            this.setAnimation('crying', 0);
+                        }
                     }
                 }
             }
@@ -1498,22 +1733,72 @@
                 });
             }
 
+            selectBed(bedColor) {
+                this.backgroundSettings.bedSettings.selectedBed = bedColor;
+                this.updateBackgroundModal();
+                this.saveBackgroundSettings();
+
+                // If currently sleeping, update the bed immediately
+                if (this.state.isSleeping && this.backgroundSettings.bedSettings.showBed) {
+                    const catBed = document.getElementById('catBed');
+                    catBed.style.backgroundImage = `url('catItems/beds/CatBed${bedColor}.png')`;
+                }
+            }
+
+            toggleShowBed() {
+                this.backgroundSettings.bedSettings.showBed = !this.backgroundSettings.bedSettings.showBed;
+                this.updateBackgroundModal();
+                this.saveBackgroundSettings();
+
+                // If currently sleeping, show/hide the bed immediately
+                if (this.state.isSleeping) {
+                    const catBed = document.getElementById('catBed');
+                    const spriteContainer = document.querySelector('.sprite-container');
+
+                    if (this.backgroundSettings.bedSettings.showBed) {
+                        const selectedBed = this.backgroundSettings.bedSettings.selectedBed;
+                        catBed.style.backgroundImage = `url('catItems/beds/CatBed${selectedBed}.png')`;
+                        catBed.classList.add('show');
+                        spriteContainer.classList.add('sleeping');
+                    } else {
+                        catBed.classList.remove('show');
+                        spriteContainer.classList.remove('sleeping');
+                    }
+                }
+            }
+
             updateBackgroundModal() {
                 // Update selected background option
-                document.querySelectorAll('.bg-option').forEach(option => {
+                document.querySelectorAll('.bg-option:not(.bed-option)').forEach(option => {
                     option.classList.remove('selected');
                     if (option.dataset.bg === this.backgroundSettings.currentBackground) {
                         option.classList.add('selected');
                     }
                 });
 
+                // Update selected bed option
+                document.querySelectorAll('.bed-option').forEach(option => {
+                    option.classList.remove('selected');
+                    if (option.dataset.bed === this.backgroundSettings.bedSettings.selectedBed) {
+                        option.classList.add('selected');
+                    }
+                });
+
                 // Update element toggles
                 document.querySelectorAll('.bg-toggle').forEach(toggle => {
-                    const elementId = toggle.dataset.element;
-                    if (this.backgroundSettings.elements[elementId]) {
-                        toggle.classList.add('active');
+                    if (toggle.id === 'showBedToggle') {
+                        if (this.backgroundSettings.bedSettings.showBed) {
+                            toggle.classList.add('active');
+                        } else {
+                            toggle.classList.remove('active');
+                        }
                     } else {
-                        toggle.classList.remove('active');
+                        const elementId = toggle.dataset.element;
+                        if (this.backgroundSettings.elements[elementId]) {
+                            toggle.classList.add('active');
+                        } else {
+                            toggle.classList.remove('active');
+                        }
                     }
                 });
             }
@@ -1525,7 +1810,16 @@
             loadBackgroundSettings() {
                 const saved = localStorage.getItem('stachie_background_settings');
                 if (saved) {
-                    this.backgroundSettings = { ...this.backgroundSettings, ...JSON.parse(saved) };
+                    const savedSettings = JSON.parse(saved);
+                    // Deep merge to preserve new properties like bedSettings
+                    this.backgroundSettings = {
+                        ...this.backgroundSettings,
+                        ...savedSettings,
+                        bedSettings: {
+                            ...this.backgroundSettings.bedSettings,
+                            ...(savedSettings.bedSettings || {})
+                        }
+                    };
                 }
                 this.applyBackground();
                 this.applyBackgroundElements();
@@ -1580,7 +1874,9 @@
                     this.stats.happiness = Math.max(0, this.stats.happiness - timePassed * 0.1);
 
                     this.showNotification(`Welcome back! Stachie missed you! 💕`);
+                    return true; // Game data exists
                 }
+                return false; // No game data
             }
 
             resetAll() {
@@ -1588,6 +1884,7 @@
                     // Clear all localStorage items
                     localStorage.removeItem('stachieGame');
                     localStorage.removeItem('stachie_background_settings');
+                    localStorage.removeItem('stachie_welcome_shown'); // Also reset welcome flag
 
                     // Reset stats to default
                     this.stats = this.default_stats;
@@ -1613,6 +1910,11 @@
                     // Close modal and show notification
                     document.getElementById('bgModal').classList.remove('show');
                     this.showNotification('All data has been reset! 🔄');
+
+                    // Reload the page to show welcome screen again
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
                 }
             }
         }
@@ -1720,9 +2022,59 @@
                 await loader.loadAllResources();
                 loader.hideLoadingScreen();
 
-                // Initialize game after resources are loaded
-                const game = new StachieSpritePet();
-                game.loadGame();
+                // Check if this is the first visit or welcome should be shown
+                const welcomeShown = localStorage.getItem('stachie_welcome_shown');
+                const hasGameData = localStorage.getItem('stachieGame');
+
+                if (!welcomeShown || !hasGameData) {
+                    // Show welcome screen
+                    const welcomeScreen = document.getElementById('welcomeScreen');
+                    const gameContainer = document.querySelector('.game-container');
+
+                    welcomeScreen.style.display = 'flex';
+
+                    // Set up welcome button click handler
+                    document.getElementById('welcomeBtn').addEventListener('click', () => {
+                        // Mark welcome as shown
+                        localStorage.setItem('stachie_welcome_shown', 'true');
+
+                        // Hide welcome screen with animation
+                        welcomeScreen.style.animation = 'fadeOut 0.5s ease forwards';
+
+                        setTimeout(() => {
+                            welcomeScreen.style.display = 'none';
+                            gameContainer.style.display = 'flex';
+
+                            // Trigger fade-in animation for game container
+                            gameContainer.style.opacity = '0';
+                            gameContainer.style.transition = 'opacity 0.5s ease';
+
+                            requestAnimationFrame(() => {
+                                gameContainer.style.opacity = '1';
+                            });
+
+                            // Initialize game after welcome
+                            const game = new StachieSpritePet();
+                            const hasData = game.loadGame();
+                            if (!hasData) {
+                                game.showNotification("Welcome to Stachie's World! 💖");
+                            }
+                        }, 500);
+                    });
+                } else {
+                    // Normal game initialization
+                    const gameContainer = document.querySelector('.game-container');
+                    gameContainer.style.display = 'flex';
+                    gameContainer.style.opacity = '0';
+                    gameContainer.style.transition = 'opacity 0.5s ease';
+
+                    requestAnimationFrame(() => {
+                        gameContainer.style.opacity = '1';
+                    });
+
+                    const game = new StachieSpritePet();
+                    game.loadGame();
+                }
             } catch (error) {
                 console.error('Failed to load resources:', error);
                 // Still try to start the game
