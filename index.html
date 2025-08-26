@@ -1003,6 +1003,14 @@
             </div>
             <div class="debug-content">
                 <div id="debugInfo">Loading...</div>
+                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.2);">
+                    <button id="testNotificationBtn" style="background: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; width: 100%;">
+                        Test Notification
+                    </button>
+                    <div id="notificationStatus" style="margin-top: 5px; font-size: 11px; color: #aaa;">
+                        Permission: <span id="permissionStatus">Unknown</span>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1224,6 +1232,328 @@
                 this.updateDisplay();
                 this.setAnimation('idle');
                 this.loadBackgroundSettings();
+                this.initNotifications();
+            }
+
+            initNotifications() {
+                // Check if notifications are supported
+                if (!('Notification' in window)) {
+                    console.log('This browser does not support notifications');
+                    document.getElementById('permissionStatus').textContent = 'Not Supported';
+                    document.getElementById('testNotificationBtn').disabled = true;
+                    return;
+                }
+
+                // Check and display current permission status
+                this.updateNotificationStatus();
+
+                // Set up test notification button
+                const testBtn = document.getElementById('testNotificationBtn');
+                testBtn.addEventListener('click', () => {
+                    this.requestNotificationPermission();
+                });
+
+                // Make sure button is enabled if permission is already granted
+                if (Notification.permission === 'granted') {
+                    testBtn.disabled = false;
+                }
+
+                // Set up background notification scheduling
+                this.setupBackgroundNotifications();
+
+                // Track user activity
+                this.trackUserActivity();
+            }
+
+            setupBackgroundNotifications() {
+                // Listen for page visibility changes
+                document.addEventListener('visibilitychange', () => {
+                    if (document.hidden) {
+                        // User is leaving the app
+                        this.scheduleBackgroundNotifications();
+                    } else {
+                        // User is back, cancel scheduled notifications
+                        this.cancelScheduledNotifications();
+                        this.trackUserActivity();
+                    }
+                });
+
+                // Also handle when user closes/leaves the page
+                window.addEventListener('beforeunload', () => {
+                    this.scheduleBackgroundNotifications();
+                    this.saveLastVisit();
+                });
+
+                // Handle when user returns to the app
+                window.addEventListener('focus', () => {
+                    this.cancelScheduledNotifications();
+                    this.trackUserActivity();
+                });
+            }
+
+            trackUserActivity() {
+                // Update last activity time
+                this.lastActivityTime = Date.now();
+                localStorage.setItem('stachie_last_activity', this.lastActivityTime);
+
+                // Reset any inactivity timers
+                if (this.inactivityTimer) {
+                    clearTimeout(this.inactivityTimer);
+                }
+
+                // Set a timer to check for inactivity (while app is open)
+                this.inactivityTimer = setTimeout(() => {
+                    this.checkInactivity();
+                }, 30 * 60 * 1000); // Check every 30 minutes
+            }
+
+            saveLastVisit() {
+                const visitData = {
+                    timestamp: Date.now(),
+                    stats: this.stats,
+                    mood: this.state.mood
+                };
+                localStorage.setItem('stachie_last_visit', JSON.stringify(visitData));
+            }
+
+            scheduleBackgroundNotifications() {
+                if (Notification.permission !== 'granted') return;
+
+                // Save current state for reference
+                this.saveLastVisit();
+
+                // Schedule notifications using service worker
+                if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                    // Send message to service worker to schedule notifications
+                    navigator.serviceWorker.controller.postMessage({
+                        type: 'SCHEDULE_NOTIFICATIONS',
+                        data: {
+                            stats: this.stats,
+                            mood: this.state.mood,
+                            timestamp: Date.now()
+                        }
+                    });
+                }
+
+                // For browsers that don't support background notifications,
+                // we'll at least show a notification when they return
+                localStorage.setItem('stachie_notification_scheduled', 'true');
+            }
+
+            cancelScheduledNotifications() {
+                // Cancel any scheduled notifications
+                if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                    navigator.serviceWorker.controller.postMessage({
+                        type: 'CANCEL_NOTIFICATIONS'
+                    });
+                }
+                localStorage.removeItem('stachie_notification_scheduled');
+            }
+
+            checkInactivity() {
+                const lastActivity = parseInt(localStorage.getItem('stachie_last_activity') || '0');
+                const timeSinceActivity = Date.now() - lastActivity;
+                const minutesInactive = Math.floor(timeSinceActivity / 1000 / 60);
+
+                // If inactive for more than 30 minutes while app is open
+                if (minutesInactive >= 30 && Notification.permission === 'granted') {
+                    this.sendInactivityNotification(minutesInactive);
+                }
+            }
+
+            sendInactivityNotification(minutesInactive) {
+                const messages = [
+                    `Hey! It's been ${minutesInactive} minutes. Want to check on Stachie? 🐾`,
+                    `Stachie is wondering where you went! Come back and play? 🎮`,
+                    `*meow* I miss you! It's been a while... 😿`,
+                    `Psst! Stachie needs some attention! 👀`,
+                    `Your virtual pet is getting lonely... 🥺`
+                ];
+
+                const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+
+                const notification = new Notification('Stachie misses you!', {
+                    body: randomMessage,
+                    icon: 'stachie-sprites-2.png',
+                    badge: 'stachie-sprites-2.png',
+                    tag: 'stachie-inactivity',
+                    requireInteraction: true,
+                    silent: false
+                });
+
+                notification.onclick = () => {
+                    window.focus();
+                    notification.close();
+                    this.pet(); // Give Stachie a pet when user returns
+                    this.showNotification('Welcome back! Stachie missed you! 💕');
+                    this.trackUserActivity();
+                };
+            }
+
+            updateNotificationStatus() {
+                const statusElement = document.getElementById('permissionStatus');
+                const testBtn = document.getElementById('testNotificationBtn');
+
+                if ('Notification' in window) {
+                    const permission = Notification.permission;
+                    statusElement.textContent = permission.charAt(0).toUpperCase() + permission.slice(1);
+
+                    // Update button text and state based on permission
+                    if (permission === 'granted') {
+                        testBtn.textContent = 'Send Test Notification';
+                        testBtn.style.background = '#4CAF50';
+                        testBtn.disabled = false;
+                    } else if (permission === 'denied') {
+                        testBtn.textContent = 'Permission Denied';
+                        testBtn.style.background = '#f44336';
+                        testBtn.disabled = true;
+                    } else {
+                        testBtn.textContent = 'Request Permission';
+                        testBtn.style.background = '#2196F3';
+                        testBtn.disabled = false;
+                    }
+                } else {
+                    statusElement.textContent = 'Not Supported';
+                    testBtn.disabled = true;
+                }
+            }
+
+            async requestNotificationPermission() {
+                console.log('requestNotificationPermission called');
+                console.log('Initial permission status:', Notification.permission);
+                
+                if (Notification.permission === 'granted') {
+                    console.log('Permission already granted, sending test notification');
+                    // Permission already granted, send test notification
+                    this.sendTestNotification();
+                    return;
+                }
+
+                if (Notification.permission !== 'denied') {
+                    console.log('Requesting permission...');
+                    // Request permission
+                    try {
+                        const permission = await Notification.requestPermission();
+                        console.log('Permission request result:', permission);
+                        console.log('New Notification.permission value:', Notification.permission);
+                        
+                        // Store the granted permission in a variable to pass to sendTestNotification
+                        this.notificationPermissionGranted = (permission === 'granted');
+                        
+                        this.updateNotificationStatus();
+
+                        if (permission === 'granted') {
+                            console.log('Permission granted! Updating UI...');
+                            this.showNotification('Notifications enabled! 🎉');
+                            // Update button immediately
+                            const testBtn = document.getElementById('testNotificationBtn');
+                            testBtn.textContent = 'Send Test Notification';
+                            testBtn.style.background = '#4CAF50';
+                            testBtn.disabled = false;
+
+                            // Send a test notification
+                            console.log('Scheduling test notification in 1 second...');
+                            setTimeout(() => {
+                                console.log('Calling sendTestNotification from setTimeout');
+                                this.sendTestNotification(true); // Pass true to force notification
+                            }, 1000);
+                        } else if (permission === 'denied') {
+                            console.log('Permission denied by user');
+                            this.showNotification('Notifications blocked 😢');
+                        } else {
+                            console.log('Permission result was:', permission);
+                        }
+                    } catch (error) {
+                        console.error('Error requesting notification permission:', error);
+                        console.error('Error details:', error.stack);
+                    }
+                } else {
+                    console.log('Permission is denied, cannot request again');
+                }
+            }
+
+            sendTestNotification(forceNotification = false) {
+                // Debug logging
+                console.log('sendTestNotification called, force:', forceNotification);
+                console.log('Current Notification.permission:', Notification.permission);
+                console.log('Type of permission:', typeof Notification.permission);
+                console.log('notificationPermissionGranted flag:', this.notificationPermissionGranted);
+                
+                // Check permission - use the flag if we just got permission
+                const hasPermission = forceNotification || 
+                                    this.notificationPermissionGranted || 
+                                    Notification.permission === 'granted';
+                
+                if (!hasPermission) {
+                    console.error('Notification permission not granted. Current status:', Notification.permission);
+                    // Try to update UI status
+                    this.updateNotificationStatus();
+                    return;
+                }
+                
+                console.log('Permission is granted (or forced), sending notification...');
+
+                // Get Stachie's current mood for personalized message
+                const messages = {
+                    '😊 Happy': [
+                        'Stachie is doing great! 😊',
+                        'Your pet is happy and playful! 🎉',
+                        'Stachie wants to play with you! 🧶'
+                    ],
+                    '😌 Content': [
+                        'Stachie is relaxing 😌',
+                        'Your pet is comfortable and content',
+                        'Stachie is thinking about you! 💭'
+                    ],
+                    '😟 Worried': [
+                        'Stachie needs some attention 😟',
+                        'Your pet could use some care',
+                        'Stachie misses you! Come play!'
+                    ],
+                    '😢 Sad': [
+                        'Stachie is feeling lonely 😢',
+                        'Your pet really needs you!',
+                        'Please come check on Stachie!'
+                    ],
+                    '😷 Sick': [
+                        'Stachie is not feeling well 😷',
+                        'Your pet needs medicine!',
+                        'Emergency! Stachie needs care!'
+                    ]
+                };
+
+                const moodMessages = messages[this.state.mood] || ['Stachie wants to see you!'];
+                const randomMessage = moodMessages[Math.floor(Math.random() * moodMessages.length)];
+
+                // Create notification
+                const notification = new Notification('Stachie\'s World', {
+                    body: randomMessage,
+                    icon: 'stachie-sprites-2.png', // Using the sprite sheet as icon for now
+                    badge: 'stachie-sprites-2.png',
+                    tag: 'stachie-notification',
+                    requireInteraction: false,
+                    vibrate: [200, 100, 200],
+                    data: {
+                        stats: this.stats,
+                        mood: this.state.mood,
+                        timestamp: Date.now()
+                    }
+                });
+
+                // Handle notification click
+                notification.onclick = () => {
+                    window.focus();
+                    notification.close();
+                    this.showNotification('Welcome back! 💕');
+                };
+
+                // Auto-close after 5 seconds
+                setTimeout(() => {
+                    notification.close();
+                }, 5000);
+
+                // Show in-app confirmation
+                this.showNotification('Test notification sent! 📬');
             }
 
             setupEventListeners() {
@@ -1873,10 +2203,43 @@
                     this.stats.hygiene = Math.max(0, this.stats.hygiene - timePassed * 0.2);
                     this.stats.happiness = Math.max(0, this.stats.happiness - timePassed * 0.1);
 
-                    this.showNotification(`Welcome back! Stachie missed you! 💕`);
+                    // Check if we should show a special message based on time away
+                    this.checkTimeAway(timePassed);
+
                     return true; // Game data exists
                 }
                 return false; // No game data
+            }
+
+            checkTimeAway(minutesAway) {
+                if (minutesAway < 30) {
+                    this.showNotification(`Welcome back! Stachie missed you! 💕`);
+                } else if (minutesAway < 60) {
+                    this.showNotification(`You were gone for ${Math.floor(minutesAway)} minutes! Stachie was getting lonely! 😿`);
+                    // Give a small happiness boost for returning
+                    this.stats.happiness = Math.min(100, this.stats.happiness + 5);
+                } else if (minutesAway < 240) {
+                    const hoursAway = Math.floor(minutesAway / 60);
+                    this.showNotification(`${hoursAway} hours away! Stachie really missed you! 🥺`);
+                    // Pet automatically to show affection
+                    setTimeout(() => this.pet(), 1000);
+                } else if (minutesAway < 1440) {
+                    const hoursAway = Math.floor(minutesAway / 60);
+                    this.showNotification(`Gone for ${hoursAway} hours! Stachie thought you forgot about her! 😢`);
+                    // Show sad animation
+                    this.setAnimation('crying', 2);
+                } else {
+                    const daysAway = Math.floor(minutesAway / 1440);
+                    this.showNotification(`${daysAway} day${daysAway > 1 ? 's' : ''} away! Stachie is so happy you're back! 🎉`);
+                    // Celebrate return
+                    this.setAnimation('happy', 3);
+                }
+
+                // Check if notification was scheduled while away
+                if (localStorage.getItem('stachie_notification_scheduled')) {
+                    console.log('Notifications were scheduled while you were away');
+                    localStorage.removeItem('stachie_notification_scheduled');
+                }
             }
 
             resetAll() {
@@ -1935,7 +2298,6 @@
                         'catItems/beds/CatBedPink.png',
                         'catItems/beds/CatBedPurple.png',
                         'catItems/beds/CatBedRed.png',
-                        'catItems/beds/CatBedYellow.png',
                     ],
                     fonts: ['Silkscreen']
                 };
