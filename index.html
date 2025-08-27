@@ -229,6 +229,9 @@
         </div>
 
         <div class="pet-area" id="petArea">
+            <div class="frame">
+                <img src="leyla-onur.png" alt="asdadas">
+            </div>
             <div class="sprite-container">
                 <div class="cat-bed" id="catBed"></div>
                 <div class="sprite" id="petSprite"></div>
@@ -554,14 +557,14 @@
             </div>
 
             <div class="bg-section">
-                <h3 class="bg-section-title">Background Elements</h3>
+                <h3 class="bg-section-title">Display Settings</h3>
                 <div class="bg-elements">
                     <div class="bg-element">
                         <div class="bg-element-info">
-                            <span class="bg-element-icon">✨</span>
-                            <span class="bg-element-name">Stars</span>
+                            <span class="bg-element-icon">🖼️</span>
+                            <span class="bg-element-name">Show Picture Frame</span>
                         </div>
-                        <div class="bg-toggle active" data-element="bgStars"></div>
+                        <div class="bg-toggle active" id="showFrameToggle" data-element="showFrame"></div>
                     </div>
                 </div>
             </div>
@@ -617,7 +620,8 @@
                     bedSettings: {
                         showBed: true,
                         selectedBed: 'Blue'
-                    }
+                    },
+                    showFrame: true
                 };
 
                 this.animations = {
@@ -1079,6 +1083,8 @@
                     toggle.addEventListener('click', () => {
                         if (toggle.id === 'showBedToggle') {
                             this.toggleShowBed();
+                        } else if (toggle.id === 'showFrameToggle') {
+                            this.toggleShowFrame();
                         } else {
                             this.toggleBackgroundElement(toggle.dataset.element);
                         }
@@ -1185,7 +1191,7 @@
 
             performAction(action) {
                 if (this.state.isSleeping && action !== 'sleep') {
-                    this.showNotification("Stachie is sleeping! 😴");
+                    this.showNotification("Sssst! Stachie uyuyor! 😴");
                     return;
                 }
 
@@ -1213,19 +1219,19 @@
 
             feed() {
                 if (this.stats.hunger > 80) {
-                    this.showNotification("Stachie is full! 😊");
+                    this.showNotification("Stachie cok doymus! 😊");
                     return;
                 }
 
                 this.state.isEating = true;
                 this.stats.hunger = Math.min(100, this.stats.hunger + 30);
                 this.showThought('😋');
-                this.showNotification("Eating... 🍖");
+                this.showNotification("Ennn sevdigim sey... 🍖");
                 // Animation will handle cleanup when done
                 this.setAnimation('eating', 1, () => {
                     this.state.isEating = false;
                     this.hideThought();
-                    this.showNotification("Yummy! That was delicious! 😋");
+                    this.showNotification("Yummm! Yemek yemek cok guzel bi sey😋");
                 });
 
                 this.updateDisplay();
@@ -1233,17 +1239,17 @@
 
             clean() {
                 if (this.stats.hygiene > 80) {
-                    this.showNotification("Stachie is already clean! ✨");
+                    this.showNotification("Stachie zaten temiz ki! ✨");
                     return;
                 }
 
                 this.stats.hygiene = Math.min(100, this.stats.hygiene + 25);
                 this.showThought('🧼');
-                this.showNotification("Cleaning... 🧹");
+                this.showNotification("Temizlenmem gerek... 🧹");
                 // Animation will handle cleanup when done
                 this.setAnimation('grooming', 2, () => {
                     this.hideThought();
-                    this.showNotification("All clean! ✨");
+                    this.showNotification("Temiz oldumm! ✨");
                 });
 
             }
@@ -1263,7 +1269,7 @@
                     }
 
                     this.setAnimation('sleeping', 0);
-                    this.showNotification("Sweet dreams! 😴");
+                    this.showNotification("Tatli ruyalar! 😴");
                     this.showThought('💤');
                     document.querySelector('.pet-area').style.filter = 'brightness(0.7)';
                 } else {
@@ -1273,7 +1279,7 @@
 
                     this.setAnimation('idle');
                     this.stats.energy = Math.min(100, this.stats.energy + 40);
-                    this.showNotification("Good morning! ☀️");
+                    this.showNotification("Gunaydiiiiiin! ☀️");
                     this.hideThought();
                     document.querySelector('.pet-area').style.filter = 'brightness(1)';
                 }
@@ -1284,7 +1290,7 @@
             play() {
                 if (this.stats.energy < 20) {
                     this.setAnimation('tired');
-                    this.showNotification("Stachie is too tired! 😫");
+                    this.showNotification("Stachie cooook yorgun! 😫");
                     return;
                 }
 
@@ -1292,7 +1298,7 @@
                 this.stats.energy = Math.max(0, this.stats.energy - 15);
                 this.stats.happiness = Math.min(100, this.stats.happiness + 20);
                 this.showThought('🧶');
-                this.showNotification("So fun! 🎉");
+                this.showNotification("Kutular benim ennnn sevdigim oyuncagim! 🎉");
 
                 const playAnimations = ['playing'];
                 const randomPlay = playAnimations[Math.floor(Math.random() * playAnimations.length)];
@@ -1321,14 +1327,14 @@
 
             giveMedicine() {
                 if (!this.state.isSick) {
-                    this.showNotification("Stachie is healthy! 💪");
+                    this.showNotification("Masallah, Stachie cok saglikli! 💪");
                     return;
                 }
 
                 this.state.isSick = false;
                 this.stats.happiness = Math.min(100, this.stats.happiness + 30);
                 this.showThought('💊');
-                this.showNotification("Feeling better! 💕");
+                this.showNotification("Gecmis olsun Stachie! 💕");
 
                 setTimeout(() => this.hideThought(), 2000);
                 this.updateDisplay();
@@ -1581,6 +1587,23 @@
                 }
             }
 
+            toggleShowFrame() {
+                // Initialize showFrame if it doesn't exist
+                if (this.backgroundSettings.showFrame === undefined) {
+                    this.backgroundSettings.showFrame = true;
+                }
+
+                this.backgroundSettings.showFrame = !this.backgroundSettings.showFrame;
+                this.updateBackgroundModal();
+                this.saveBackgroundSettings();
+
+                // Show/hide the frame immediately
+                const frame = document.querySelector('.frame');
+                if (frame) {
+                    frame.style.display = this.backgroundSettings.showFrame ? 'flex' : 'none';
+                }
+            }
+
             updateBackgroundModal() {
                 // Update selected background option
                 document.querySelectorAll('.bg-option:not(.bed-option)').forEach(option => {
@@ -1602,6 +1625,16 @@
                 document.querySelectorAll('.bg-toggle').forEach(toggle => {
                     if (toggle.id === 'showBedToggle') {
                         if (this.backgroundSettings.bedSettings.showBed) {
+                            toggle.classList.add('active');
+                        } else {
+                            toggle.classList.remove('active');
+                        }
+                    } else if (toggle.id === 'showFrameToggle') {
+                        // Initialize showFrame if undefined
+                        if (this.backgroundSettings.showFrame === undefined) {
+                            this.backgroundSettings.showFrame = true;
+                        }
+                        if (this.backgroundSettings.showFrame) {
                             toggle.classList.add('active');
                         } else {
                             toggle.classList.remove('active');
@@ -1635,6 +1668,17 @@
                         }
                     };
                 }
+
+                // Apply frame visibility
+                const frame = document.querySelector('.frame');
+                if (frame) {
+                    // Initialize showFrame if undefined (default to true)
+                    if (this.backgroundSettings.showFrame === undefined) {
+                        this.backgroundSettings.showFrame = true;
+                    }
+                    frame.style.display = this.backgroundSettings.showFrame ? 'flex' : 'none';
+                }
+
                 this.applyBackground();
                 this.applyBackgroundElements();
             }
@@ -1699,7 +1743,7 @@
                 if (minutesAway < 30) {
                     this.showNotification(`Welcome back! Stachie missed you! 💕`);
                 } else if (minutesAway < 60) {
-                    this.showNotification(`You were gone for ${Math.floor(minutesAway)} minutes! Stachie was getting lonely! 😿`);
+                    this.showNotification(`${Math.floor(minutesAway)} minutes away! Stachie was getting lonely! 😿`);
                     // Give a small happiness boost for returning
                     this.stats.happiness = Math.min(100, this.stats.happiness + 5);
                 } else if (minutesAway < 240) {
@@ -1782,6 +1826,8 @@
                         'catItems/beds/CatBedPink.png',
                         'catItems/beds/CatBedPurple.png',
                         'catItems/beds/CatBedRed.png',
+                        'leyla-onur.png',
+                        'frame.png',
                     ],
                     fonts: ['Silkscreen']
                 };
@@ -1909,7 +1955,7 @@
                             const game = new StachieSpritePet();
                             const hasData = game.loadGame();
                             if (!hasData) {
-                                game.showNotification("Welcome to Stachie's World! 💖");
+                                game.showNotification("Welcome to Stachie's allergy free World! 💖");
                             }
                         }, 500);
                     });
