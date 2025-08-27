@@ -1,8 +1,8 @@
 {
   "name": "Stachie's allergy free World",
-  "short_name": "Stachie",
+  "short_name": "Stachie's World",
   "description": "Take care of Stachie, your virtual fluffy gray cat!",
-  "start_url": "/",
+  "start_url": "/custom-tamagotchi",
   "display": "standalone",
   "background_color": "#FFE5F1",
   "theme_color": "#FFB6C1",
